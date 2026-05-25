@@ -1,0 +1,1624 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>portfolio · op_one</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=VT323&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #FFFFFF;
+  --ink: #1A1A1A;
+  --soft: #F0F0F0;
+  --muted: #888888;
+  --hairline: rgba(26,26,26,0.2);
+  --black-key-soft: #3A3A3A;
+
+  --screen-bg: #0A100D;
+  --screen-glow: #7FE5B9;
+  --screen-blue: #6FB8F2;
+  --screen-purple: #C2ABE8;
+  --screen-pink: #F26580;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  font-feature-settings: 'ss01';
+}
+
+body {
+  padding: 24px;
+  min-height: 100vh;
+}
+
+.frame { max-width: none; margin: 0 auto; position: relative; }
+
+/* Edge tick rails */
+.tick-rail {
+  position: absolute;
+  top: 0; bottom: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 6px 0;
+  pointer-events: none;
+}
+.tick-rail.l { left: -16px; }
+.tick-rail.r { right: -16px; }
+.tick-rail .t { width: 10px; height: 1px; background: var(--ink); }
+.tick-rail .t.big { width: 14px; }
+
+/* Device */
+.device {
+  background: var(--bg);
+  position: relative;
+}
+.device::before, .device::after {
+  content: '';
+  position: absolute;
+  width: 5px; height: 5px;
+  background: var(--ink);
+}
+.device::before { top: -3px; left: -3px; }
+.device::after { bottom: -3px; right: -3px; }
+.corner-tr, .corner-bl {
+  position: absolute;
+  width: 5px; height: 5px;
+  background: var(--ink);
+}
+.corner-tr { top: -3px; right: -3px; }
+.corner-bl { bottom: -3px; left: -3px; }
+
+/* Column ruler */
+.col-ruler {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  padding: 6px 0 4px;
+  border-bottom: 1px dashed var(--hairline);
+}
+.col-ruler span {
+  text-align: center;
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 0.05em;
+  border-right: 1px dotted var(--hairline);
+}
+.col-ruler span:last-child { border-right: none; }
+
+/* Grid */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-auto-rows: minmax(60px, auto);
+  border-top: 1px solid var(--ink);
+  border-left: 1px solid var(--ink);
+}
+.cell {
+  border-right: 1px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
+  padding: 10px 12px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  transition: background 0.12s, color 0.12s;
+  min-width: 0;
+}
+
+.cell .anno {
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+.cell .lbl { font-size: 13px; font-weight: 500; margin-top: 6px; }
+.cell .lbl-md { font-size: 16px; font-weight: 500; margin-top: 6px; letter-spacing: -0.01em; }
+
+/* Spans */
+.span-1 { grid-column: span 1; }
+.span-2 { grid-column: span 2; }
+.span-3 { grid-column: span 3; }
+.span-4 { grid-column: span 4; }
+.span-5 { grid-column: span 5; }
+.span-6 { grid-column: span 6; }
+.span-7 { grid-column: span 7; }
+.span-8 { grid-column: span 8; }
+.span-12 { grid-column: span 12; }
+.row-2 { grid-row: span 2; }
+.row-3 { grid-row: span 3; }
+
+/* Patterns — SVG backgrounds that scale to fit the cell exactly */
+.fill-hatch {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' preserveAspectRatio='none'><defs><pattern id='p' patternUnits='userSpaceOnUse' width='12' height='12' patternTransform='rotate(45)'><line x1='0' y1='0' x2='0' y2='12' stroke='%231A1A1A' stroke-width='1.2'/></pattern></defs><rect width='100%25' height='100%25' fill='url(%23p)'/></svg>");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+.fill-hatch-r {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' preserveAspectRatio='none'><defs><pattern id='p' patternUnits='userSpaceOnUse' width='12' height='12' patternTransform='rotate(-45)'><line x1='0' y1='0' x2='0' y2='12' stroke='%231A1A1A' stroke-width='1.2'/></pattern></defs><rect width='100%25' height='100%25' fill='url(%23p)'/></svg>");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+.fill-dots {
+  background-image: radial-gradient(var(--ink) 0.9px, transparent 1.2px);
+  background-size: 9px 9px;
+  background-position: center;
+  background-repeat: round;
+}
+.fill-grid-mini {
+  background-image:
+    linear-gradient(to right, var(--hairline) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--hairline) 1px, transparent 1px);
+  background-size: 9px 9px;
+  background-position: center;
+  background-repeat: round;
+}
+
+/* Screen */
+.screen {
+  background: var(--screen-bg);
+  color: var(--screen-glow);
+  font-family: 'VT323', monospace;
+  padding: 20px 24px 18px;
+  justify-content: space-between;
+  border-right: 1px solid var(--ink);
+}
+.screen .row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.screen .row-status { font-size: 18px; opacity: 0.9; }
+.screen .row-status > span:first-child { color: var(--screen-blue); }
+#screen-mode { color: var(--screen-purple); }
+.screen .blink { animation: blink 1.2s steps(2) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+.screen h2 {
+  font-size: clamp(40px, 5.5vw, 80px);
+  color: var(--screen-pink);
+  line-height: 0.92;
+  letter-spacing: 0.01em;
+  font-weight: normal;
+  font-family: 'VT323', monospace;
+  margin-top: 6px;
+}
+.screen .row-meta { font-size: 17px; opacity: 0.85; margin-top: 6px; }
+#screen-cat { color: var(--screen-purple); }
+#screen-time { color: var(--screen-glow); }
+.screen .waveform {
+  height: 40px;
+  display: flex;
+  align-items: end;
+  gap: 2px;
+  margin-top: 12px;
+}
+.screen .waveform .b {
+  flex: 1;
+  background: var(--screen-glow);
+  opacity: 0.5;
+  transition: height 0.2s, opacity 0.2s;
+}
+.screen.playing .waveform .b { opacity: 0.9; }
+.screen .vu {
+  display: flex;
+  justify-content: space-between;
+  font-size: 16px;
+  margin-top: 10px;
+  letter-spacing: 0.04em;
+}
+.screen .vu > span:first-child { color: var(--screen-glow); opacity: 0.85; }
+.screen .vu > span:last-child  { color: var(--screen-blue); opacity: 0.7; }
+
+/* Preview region — toggles between audio waveform / video filmstrip, fixed height */
+.preview .preview-audio,
+.preview .preview-video {
+  display: none;
+  height: 86px;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+.preview[data-mode="audio"] .preview-audio { display: flex; }
+.preview[data-mode="video"] .preview-video { display: flex; }
+
+/* Video preview: thin filmstrip with sprocket-like ticks + a play triangle */
+.filmstrip {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 1px;
+  overflow: hidden;
+  min-height: 0;
+}
+.filmstrip-top,
+.filmstrip-bot {
+  display: flex;
+  height: 6px;
+  flex-shrink: 0;
+  background: var(--screen-bg);
+  border-top: 1px solid rgba(255,255,255,0.06);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.filmstrip-top span,
+.filmstrip-bot span {
+  flex: 1;
+  margin: 1.5px 3px;
+  background: var(--screen-glow);
+  opacity: 0.55;
+  border-radius: 0.5px;
+}
+.frame-window {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  background: linear-gradient(180deg, rgba(127,229,185,0.04), rgba(111,184,242,0.06));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.frame-window::before,
+.frame-window::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0;
+  height: 1px;
+  background: rgba(127,229,185,0.18);
+}
+.frame-window::before { top: 35%; }
+.frame-window::after  { bottom: 28%; }
+.play-tri {
+  width: 26px;
+  height: 26px;
+  color: var(--screen-pink);
+  filter: drop-shadow(0 0 6px rgba(242,101,128,0.35));
+}
+.screen.playing .play-tri {
+  opacity: 0.35;
+}
+.preview-video .vu { margin-top: 6px; flex-shrink: 0; }
+
+/* Encoders — round colored caps like real OP-1 */
+.enc {
+  cursor: pointer;
+  align-items: center;
+  text-align: center;
+  padding: 10px 8px;
+  justify-content: space-between;
+  gap: 2px;
+}
+.enc:hover { background: var(--soft); }
+.enc .anno { align-self: flex-start; }
+.enc .dial-big {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  background: var(--enc-color);
+  border: 1.5px solid var(--ink);
+  position: relative;
+  flex-shrink: 0;
+  margin: 2px 0;
+}
+.enc .dial-big::after {
+  content: '';
+  position: absolute;
+  top: 4px; left: 50%;
+  width: 2px; height: 10px;
+  background: var(--ink);
+  transform: translateX(-50%) rotate(var(--rot, 0deg));
+  transform-origin: 50% 15px;
+  transition: transform 0.4s cubic-bezier(0.4, 1.7, 0.5, 1);
+}
+.enc.enc-1 .dial-big { --rot: -40deg; }
+.enc.enc-2 .dial-big { --rot: 30deg; }
+.enc.enc-3 .dial-big { --rot: -75deg; }
+.enc.enc-4 .dial-big { --rot: 60deg; }
+
+.enc .lbl-name {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+}
+.enc .count-color {
+  font-size: 10px;
+  color: var(--enc-color);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+
+/* per-encoder colors — OP-1 order: blue / green / white / orange */
+.enc.enc-1 { --enc-color: #2A7BC5; }
+.enc.enc-2 { --enc-color: #5BBE5B; }
+.enc.enc-3 { --enc-color: #C9C3B3; }
+.enc.enc-4 { --enc-color: #FF6B1F; }
+
+/* white-cap (enc-3): outline-only dial so it reads on white bg */
+.enc.enc-3 .dial-big {
+  background: var(--bg);
+  border: 2.5px solid var(--ink);
+}
+.enc.enc-3 .count-color { color: #6E6A5E; }
+
+/* Active state — cell inverts, colors stay */
+.enc.acc { background: var(--ink); color: var(--bg); }
+.enc.acc:hover { background: var(--ink); }
+.enc.acc .anno { color: var(--bg); opacity: 0.7; }
+.enc.acc .dial-big { border-color: var(--bg); }
+.enc.enc-3.acc .dial-big { background: var(--ink); border: 2.5px solid var(--bg); }
+.enc.acc .dial-big::after { background: var(--bg); }
+.enc.enc-3.acc .count-color { color: var(--bg); opacity: 0.8; }
+
+/* Speaker grille (decorative perforated panel) */
+.speaker {
+  padding: 0;
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(circle, var(--ink) 1.6px, transparent 2.2px);
+  background-size: 12px 12px;
+  background-position: 6px 6px;
+}
+
+/* Aux (shuffle) — clickable */
+.aux {
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.1s, transform 0.08s;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+.aux:hover { background: var(--soft); }
+.aux:active { transform: translateY(0.5px); }
+.aux.flashing {
+  animation: flash 0.4s ease-out;
+}
+@keyframes flash {
+  0% { background: var(--ink); color: var(--bg); }
+  100% { background: var(--bg); color: var(--ink); }
+}
+
+/* Number selector row */
+.num {
+  cursor: pointer;
+  user-select: none;
+  text-align: left;
+  padding: 10px 12px;
+  gap: 4px;
+}
+.num:hover { background: var(--soft); }
+.num:active { transform: translateY(0.5px); }
+.num.on { background: var(--ink); color: var(--bg); }
+.num.on .anno { color: var(--bg); opacity: 0.7; }
+.num.on:hover { background: var(--ink); }
+.num.empty { cursor: default; }
+.num.empty .num-big { opacity: 0.18; }
+.num.empty .anno { opacity: 0.18; }
+.num.empty:hover { background: var(--bg); }
+.num .anno {
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.num .num-big {
+  font-size: clamp(22px, 2.4vw, 32px);
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  margin-top: auto;
+}
+
+/* Buttons (function + mode) */
+.btn {
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.1s, color 0.1s, transform 0.08s;
+  justify-content: center;
+}
+.btn:hover { background: var(--soft); }
+.btn:active { transform: translateY(0.5px); }
+.btn.on { background: var(--ink); color: var(--bg); }
+.btn.on .anno { color: var(--bg); opacity: 0.7; }
+.btn.on:hover { background: var(--ink); }
+.btn.fn .corner {
+  position: absolute;
+  top: 8px; right: 10px;
+  width: 8px; height: 8px;
+  background: var(--ink);
+}
+.btn.fn.t2 .corner { background: var(--ink); opacity: 0.6; }
+.btn.fn.t3 .corner { background: var(--ink); opacity: 0.3; }
+.btn.fn.t4 .corner { background: transparent; border: 1px solid var(--ink); }
+.btn.fn.on .corner { background: var(--bg); opacity: 1; }
+.btn.fn.on.t4 .corner { border-color: var(--bg); background: transparent; }
+
+/* Transport */
+.tr {
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  text-align: center;
+  padding: 10px 8px;
+}
+.tr:hover { background: var(--soft); }
+.tr:active { transform: translateY(1px); }
+.tr .glyph { font-size: 18px; line-height: 1; }
+.tr .micro {
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  margin-top: 5px;
+  text-transform: uppercase;
+}
+.tr.on { background: var(--ink); color: var(--bg); }
+.tr.on .micro { color: var(--bg); opacity: 0.7; }
+.tr.on:hover { background: var(--ink); }
+
+/* CV download button — orange arrow, in place of REC */
+.tr.fav {
+  text-decoration: none;
+  color: var(--ink);
+}
+.tr.fav .glyph {
+  color: #FF6B1F;
+  font-size: 22px;
+  transition: transform 0.2s cubic-bezier(0.4, 1.7, 0.5, 1);
+}
+.tr.fav.pop .glyph { transform: translateY(3px); }
+
+/* Contact modal */
+.modal-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(26, 26, 26, 0.6);
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--bg);
+  border: 1px solid var(--ink);
+  padding: 28px 32px;
+  max-width: 480px;
+  width: 100%;
+  position: relative;
+  max-height: 90vh;
+  overflow: auto;
+}
+.modal-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+.modal-head .anno {
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+.modal-close {
+  background: none;
+  border: 1px solid var(--ink);
+  width: 26px; height: 26px;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: inherit;
+  color: var(--ink);
+  padding: 0;
+  line-height: 1;
+}
+.modal-close:hover { background: var(--ink); color: var(--bg); }
+.modal h3 {
+  font-size: 40px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 0.9;
+  margin: 0 0 10px;
+  text-transform: lowercase;
+}
+.modal p.lead {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+.modal form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.modal label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+.modal input, .modal textarea {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 13px;
+  padding: 8px 10px;
+  border: 1px solid var(--ink);
+  background: var(--bg);
+  color: var(--ink);
+  resize: vertical;
+  border-radius: 0;
+}
+.modal input:focus, .modal textarea:focus {
+  outline: none;
+  background: var(--soft);
+}
+.modal button[type="submit"] {
+  background: var(--ink);
+  color: var(--bg);
+  border: 1px solid var(--ink);
+  padding: 10px;
+  font-family: inherit;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  text-transform: lowercase;
+  margin-top: 4px;
+  border-radius: 0;
+}
+.modal button[type="submit"]:hover {
+  background: var(--bg);
+  color: var(--ink);
+}
+.modal-foot {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 22px;
+  padding-top: 14px;
+  border-top: 1px solid var(--hairline);
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* KEYBOARD — proper piano */
+.keyboard {
+  grid-column: span 12;
+  height: 220px;
+  padding: 0;
+  position: relative;
+  background: var(--bg);
+  display: block;
+}
+.white-keys {
+  position: absolute;
+  inset: 0;
+  display: flex;
+}
+.key.w {
+  flex: 1;
+  border-right: 1px solid var(--ink);
+  background: var(--bg);
+  cursor: pointer;
+  position: relative;
+  transition: background 0.08s;
+}
+.key.w:last-child { border-right: none; }
+.key.w:hover { background: var(--soft); }
+.key.w:active, .key.w.playing { background: #D8D8D8; }
+.black-keys {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 62%;
+  pointer-events: none;
+}
+.key.b {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  background: var(--ink);
+  cursor: pointer;
+  pointer-events: auto;
+  transition: background 0.08s;
+}
+.key.b:hover, .key.b:active, .key.b.playing { background: var(--black-key-soft); }
+.key .note-lbl {
+  position: absolute;
+  bottom: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: 0.05em;
+  pointer-events: none;
+}
+.key.b .note-lbl { color: var(--soft); opacity: 0.4; }
+
+/* Brand mark — vertical, only the word burushina is the link */
+.brand-cell {
+  align-items: center;
+  padding: 10px 6px;
+  overflow: hidden;
+}
+.brand-name {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: lowercase;
+  color: var(--ink);
+  text-decoration: none;
+  line-height: 1;
+  margin-top: auto;
+  margin-bottom: 4px;
+  transition: color 0.15s;
+  cursor: pointer;
+}
+.brand-name:hover { color: #9485D2; }
+
+/* Mobile — keep horizontal 12-col device, just compact */
+@media (max-width: 880px) {
+  body { padding: 6px; }
+
+  /* On mobile we focus on the device itself; written description is hidden */
+  .project-info { display: none; }
+
+  /* Compact cell sizing */
+  .grid { grid-auto-rows: minmax(40px, auto); }
+  .cell { padding: 5px 5px; }
+  .cell .anno { font-size: 7px; letter-spacing: 0.06em; }
+  .cell .lbl { font-size: 10px; margin-top: 3px; }
+  .cell .lbl-md { font-size: 11px; }
+
+  /* Screen */
+  .screen { padding: 8px 10px 6px; }
+  .screen h2 { font-size: 22px; }
+  .screen .row-status { font-size: 10px; }
+  .screen .row-meta { font-size: 10px; }
+  .screen .vu { font-size: 9px; margin-top: 4px; }
+  .screen .waveform { height: 18px; margin-top: 4px; }
+
+  /* Encoders */
+  .enc { padding: 3px 3px; gap: 1px; }
+  .enc .dial-big { width: 22px; height: 22px; margin: 1px 0; }
+  .enc .dial-big::after { width: 1.5px; height: 7px; top: 3px; transform-origin: 50% 9px; }
+  .enc .lbl-name { font-size: 9px; }
+  .enc .count-color { font-size: 7px; }
+
+  /* Transport */
+  .tr { padding: 4px 4px; }
+  .tr .glyph { font-size: 13px; }
+  .tr .micro { font-size: 6px; margin-top: 2px; }
+  .tr.fav .glyph { font-size: 16px; }
+
+  /* Function/mode buttons */
+  .btn.fn .corner { top: 5px; right: 6px; width: 6px; height: 6px; }
+
+  /* Numbers */
+  .num { padding: 4px 5px; gap: 2px; }
+  .num .num-big { font-size: 14px; }
+  .num .anno { font-size: 7px; }
+
+  /* Aux */
+  .aux .lbl-md { font-size: 10px; }
+
+  /* Keyboard */
+  .keyboard { height: 64px; }
+
+  /* Brand */
+  .brand-cell { padding: 6px 4px; }
+  .brand-name { font-size: 12px; letter-spacing: 0.03em; }
+
+  /* Modal */
+  .modal { padding: 18px; }
+  .modal h3 { font-size: 26px; }
+
+  /* Mobile name strip — replaces full info block */
+  .project-info {
+    display: flex !important;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 14px;
+    margin-top: 14px;
+    padding-top: 10px;
+    border-top: 1px solid var(--ink);
+  }
+  .project-info h2 {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1;
+    text-transform: lowercase;
+    margin: 0;
+    grid-column: unset;
+    flex-shrink: 0;
+  }
+  .project-info .info-credits,
+  .project-info .info-desc,
+  .project-info .info-side { display: none; }
+  /* Inject the micro-strip via pseudo on h2 — content set in JS via data-* */
+  .project-info::after {
+    content: attr(data-micro);
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    text-transform: uppercase;
+    text-align: right;
+    line-height: 1.4;
+  }
+}
+
+/* Portrait phone — rotate the whole frame so the horizontal device fills the screen */
+@media (max-width: 880px) and (orientation: portrait) {
+  html, body {
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+  }
+  body {
+    padding: 0;
+    margin: 0;
+  }
+  .frame {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 100vh;
+    height: 100vw;
+    transform: translate(-50%, -50%) rotate(90deg);
+    padding: 10px 8px;
+    box-sizing: border-box;
+    max-width: none;
+    margin: 0;
+  }
+}
+
+/* Project info block (below device) */
+.project-info {
+  margin-top: clamp(36px, 5vh, 64px);
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 0;
+  column-gap: 20px;
+  row-gap: 12px;
+}
+.project-info h2 {
+  grid-column: span 12;
+  font-size: clamp(32px, 4.2vw, 56px);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 0.9;
+  text-transform: lowercase;
+  margin: 0;
+}
+.info-credits {
+  grid-column: span 12;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  border-top: 1px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
+  padding: 10px 0;
+}
+.credit { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.credit .anno-k {
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+.credit .val {
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+}
+.info-desc {
+  grid-column: span 8;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--ink);
+  max-width: 680px;
+}
+.info-side {
+  grid-column: span 4;
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 0.06em;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-self: start;
+}
+.info-side .k { text-transform: uppercase; }
+@media (max-width: 880px) {
+  .info-desc, .info-side { grid-column: span 12; }
+  .info-credits { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<div class="frame">
+
+  <div class="device">
+    <span class="corner-tr"></span>
+    <span class="corner-bl"></span>
+
+    <div class="grid">
+
+      <!-- Speaker grille (top-left, decorative) -->
+      <div class="cell speaker span-2 row-3"></div>
+
+      <!-- SCREEN — shifted right -->
+      <div class="cell screen span-5 row-3" id="screen">
+        <div>
+          <div class="row row-status">
+            <span><span class="blink">▶</span> now_playing.mov</span>
+            <span id="screen-mode">tape</span>
+          </div>
+          <h2 id="screen-title">STUDIO</h2>
+          <div class="row row-meta">
+            <span id="screen-cat">all · 35 works</span>
+            <span id="screen-time">02:14 / 03:47</span>
+          </div>
+        </div>
+        <div class="preview" id="preview" data-mode="video">
+          <!-- AUDIO preview: waveform -->
+          <div class="preview-audio">
+            <div class="waveform" id="wave"></div>
+            <div class="vu">
+              <span>vol ▓▓▓▒░ −6dB</span>
+              <span>48 kHz / 24-bit</span>
+            </div>
+          </div>
+          <!-- VIDEO preview: filmstrip + play triangle -->
+          <div class="preview-video">
+            <div class="filmstrip">
+              <div class="filmstrip-top">
+                <span></span><span></span><span></span><span></span><span></span>
+                <span></span><span></span><span></span><span></span><span></span>
+                <span></span><span></span>
+              </div>
+              <div class="frame-window">
+                <svg class="play-tri" viewBox="0 0 24 24" aria-hidden="true">
+                  <polygon points="6,4 6,20 20,12" fill="currentColor"/>
+                </svg>
+              </div>
+              <div class="filmstrip-bot">
+                <span></span><span></span><span></span><span></span><span></span>
+                <span></span><span></span><span></span><span></span><span></span>
+                <span></span><span></span>
+              </div>
+            </div>
+            <div class="vu">
+              <span id="video-meta-l">1920×1080 · h.264</span>
+              <span id="video-meta-r">24 fps · stereo mix</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- row 1: 4 round colored encoders -->
+      <div class="cell enc enc-1 acc" id="enc-1" data-cat="showreel" onclick="setCategory('showreel', this)">
+        <span class="anno">enc.1</span>
+        <div class="dial-big"></div>
+        <span class="lbl-name">showreel</span>
+        <span class="count-color">02:48</span>
+      </div>
+      <div class="cell enc enc-2" id="enc-2" data-cat="film" onclick="setCategory('film', this)">
+        <span class="anno">enc.2</span>
+        <div class="dial-big"></div>
+        <span class="lbl-name">film</span>
+        <span class="count-color">12 works</span>
+      </div>
+      <div class="cell enc enc-3" id="enc-3" data-cat="sound" onclick="setCategory('sound', this)">
+        <span class="anno">enc.3</span>
+        <div class="dial-big"></div>
+        <span class="lbl-name">sound</span>
+        <span class="count-color">6 works</span>
+      </div>
+      <div class="cell enc enc-4" id="enc-4" data-cat="music" onclick="setCategory('music', this)">
+        <span class="anno">enc.4</span>
+        <div class="dial-big"></div>
+        <span class="lbl-name">music</span>
+        <span class="count-color">9 works</span>
+      </div>
+      <div class="cell brand-cell row-3">
+        <span class="anno">made by</span>
+        <a href="https://burushina.xyz" target="_blank" rel="noopener" class="brand-name">burushina</a>
+      </div>
+
+      <!-- row 2 right side (cols 8-11): shuffle + fill (col 12 taken by tall brand) -->
+      <div class="cell aux span-3" onclick="shuffle(this)">
+        <span class="lbl-md">↻ shuffle</span>
+      </div>
+      <div class="cell fill-dots"></div>
+
+      <!-- row 3 right side (cols 8-11): decorative fills -->
+      <div class="cell span-2 fill-hatch-r"></div>
+      <div class="cell span-2 fill-grid-mini"></div>
+
+      <!-- NUMBER SELECTOR ROW (12 cells) -->
+      <div class="cell num" data-idx="0"  onclick="setIndex(0)"><span class="anno">PROJECT</span><span class="num-big">01</span></div>
+      <div class="cell num" data-idx="1"  onclick="setIndex(1)"><span class="anno">PROJECT</span><span class="num-big">02</span></div>
+      <div class="cell num" data-idx="2"  onclick="setIndex(2)"><span class="anno">PROJECT</span><span class="num-big">03</span></div>
+      <div class="cell num" data-idx="3"  onclick="setIndex(3)"><span class="anno">PROJECT</span><span class="num-big">04</span></div>
+      <div class="cell num" data-idx="4"  onclick="setIndex(4)"><span class="anno">PROJECT</span><span class="num-big">05</span></div>
+      <div class="cell num" data-idx="5"  onclick="setIndex(5)"><span class="anno">PROJECT</span><span class="num-big">06</span></div>
+      <div class="cell num" data-idx="6"  onclick="setIndex(6)"><span class="anno">PROJECT</span><span class="num-big">07</span></div>
+      <div class="cell num" data-idx="7"  onclick="setIndex(7)"><span class="anno">PROJECT</span><span class="num-big">08</span></div>
+      <div class="cell num" data-idx="8"  onclick="setIndex(8)"><span class="anno">PROJECT</span><span class="num-big">09</span></div>
+      <div class="cell num" data-idx="9"  onclick="setIndex(9)"><span class="anno">PROJECT</span><span class="num-big">10</span></div>
+      <div class="cell num" data-idx="10" onclick="setIndex(10)"><span class="anno">PROJECT</span><span class="num-big">11</span></div>
+      <div class="cell num" data-idx="11" onclick="setIndex(11)"><span class="anno">PROJECT</span><span class="num-big">12</span></div>
+
+      <!-- TRANSPORT (rw/play/stop) + SECTIONS (main/work/about/contact) + CV + MODES -->
+      <div class="cell tr" onclick="trBtn('rw')">
+        <span class="glyph">«</span><span class="micro">rw</span>
+      </div>
+      <div class="cell tr" id="btn-play" onclick="togglePlay()">
+        <span class="glyph">▶</span><span class="micro">play</span>
+      </div>
+      <div class="cell tr" onclick="trBtn('stop')">
+        <span class="glyph">■</span><span class="micro">stop</span>
+      </div>
+
+      <div class="cell btn fn t1 on" onclick="setSection('main', this)">
+        <span class="corner"></span><span class="lbl">main</span>
+      </div>
+      <div class="cell btn fn t2" onclick="setSection('work', this)">
+        <span class="corner"></span><span class="lbl">work</span>
+      </div>
+      <div class="cell btn fn t3" onclick="setSection('about', this)">
+        <span class="corner"></span><span class="lbl">about</span>
+      </div>
+      <div class="cell btn fn t4" onclick="openContact()">
+        <span class="corner"></span><span class="lbl">contact</span>
+      </div>
+
+      <a class="cell tr fav" id="btn-cv" href="#" target="_blank" rel="noopener" onclick="bumpCv(event, this)">
+        <span class="glyph" id="cv-glyph">↓</span><span class="micro">cv</span>
+      </a>
+
+      <div class="cell btn mode" onclick="setMode('synth', this)">
+        <span class="lbl">synth</span>
+      </div>
+      <div class="cell btn mode" onclick="setMode('drum', this)">
+        <span class="lbl">drum</span>
+      </div>
+      <div class="cell btn mode on" onclick="setMode('pad', this)">
+        <span class="lbl">pad</span>
+      </div>
+      <div class="cell btn mode" onclick="setMode('pluck', this)">
+        <span class="lbl">pluck</span>
+      </div>
+
+      <!-- KEYBOARD: proper piano with overlapping black keys -->
+      <div class="cell keyboard" id="keyboard">
+        <div class="white-keys" id="white-keys"></div>
+        <div class="black-keys" id="black-keys"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ────── PROJECT INFO (below device) ────── -->
+  <section class="project-info" id="info-block">
+    <h2 id="info-title">midnight</h2>
+
+    <div class="info-credits">
+      <div class="credit"><span class="anno-k">year</span><span class="val" id="info-year">2024</span></div>
+      <div class="credit"><span class="anno-k">role</span><span class="val" id="info-role">sound design + score</span></div>
+      <div class="credit"><span class="anno-k">client</span><span class="val" id="info-client">independent</span></div>
+      <div class="credit"><span class="anno-k">duration</span><span class="val" id="info-dur">03:47</span></div>
+    </div>
+
+    <p class="info-desc" id="info-desc">
+      A nocturnal short following a kitchen porter on his last shift.
+      Score built from kitchen Foley resampled into the OP-1 tape engine,
+      carried by a single muted piano line.
+    </p>
+
+    <div class="info-side">
+      <span class="k">tools</span>
+      <span id="info-tools">pro tools · kontakt · op-1 · serum</span>
+    </div>
+  </section>
+
+  <!-- ────── CONTACT MODAL ────── -->
+  <div class="modal-overlay" id="contact-modal" onclick="closeContact(event)">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-head">
+        <span class="anno">t4 · contact</span>
+        <button class="modal-close" onclick="closeContact()" aria-label="close">×</button>
+      </div>
+      <h3>say hello</h3>
+      <p class="lead">Drop a line about your project — film, sound design, games, music, installations. Currently booking from late 2026.</p>
+      <form onsubmit="submitContact(event)">
+        <label>name<input type="text" name="name" required></label>
+        <label>email<input type="email" name="email" required></label>
+        <label>project<textarea name="message" rows="4" placeholder="a few lines about what you have in mind"></textarea></label>
+        <button type="submit">send →</button>
+      </form>
+      <div class="modal-foot">
+        <span>hello@konstantintroitsky.studio</span>
+        <span>tg @konstantintroitsky</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ───────── projects by category ──────────
+const PROJECTS = {
+  showreel: [
+    {name:'reel.25',  dur:'02:48', year:'2025', role:'sound + score reel',     client:'studio showreel',   tools:'pro tools · ableton · op-1',
+     desc:`Latest sound design and score reel — 2025 highlights across film, sound design and music. Cut to a single continuous mix.`},
+    {name:'reel.24',  dur:'03:12', year:'2024', role:'sound + score reel',     client:'studio showreel',   tools:'pro tools · ableton · op-1',
+     desc:`2024 showreel. Sound design highlights from the year's film and installation work, scored as a continuous piece.`},
+    {name:'reel.23',  dur:'02:30', year:'2023', role:'sound + score reel',     client:'studio showreel',   tools:'reaper · op-1 · field recordings',
+     desc:`2023 showreel — quieter, slower year. Heavier on score, lighter on sound design.`},
+    {name:'reel.22',  dur:'01:55', year:'2022', role:'sound + score reel',     client:'studio showreel',   tools:'logic · kontakt · field recordings',
+     desc:`First studio reel — 2022 cut. Three years of work compressed into two minutes.`}
+  ],
+  film: [
+    {name:'midnight',  dur:'03:47', year:'2024', role:'sound design + score',     client:'a24 / independent', tools:'pro tools · kontakt · op-1 · serum',
+     desc:`A nocturnal short following a kitchen porter on his last shift. Score built from kitchen Foley resampled into the OP-1 tape engine, carried by a single muted piano line.`},
+    {name:'vhs',       dur:'02:02', year:'2023', role:'sound design + mix',       client:'mubi shorts',       tools:'reaper · soundtoys · tape decks (×3)',
+     desc:`Found-footage horror restored to 1996 fidelity — wow, flutter, generation loss, and the magnetic hum of three decks running in parallel.`},
+    {name:'argo',      dur:'04:30', year:'2024', role:'score + field recording',  client:'kinopoisk lab',     tools:'logic · contact mics · op-1',
+     desc:`A father-son fishing trip turns inward. Underwater ambience built from glass marbles and contact mics on a steel hull.`},
+    {name:'amber',     dur:'01:55', year:'2023', role:'foley + score',            client:'royal college',    tools:'pro tools · foley pit',
+     desc:`Stop-motion short. Every prop has its own mic; the world is rendered as small as the puppets are.`},
+    {name:'driftwood', dur:'06:10', year:'2025', role:'score',                    client:'slow cinema co.',   tools:'ableton · prepared bells',
+     desc:`Slow-cinema feature. The score is mostly absence — wind, lapping water, a single bell-like motif that returns only twice.`},
+    {name:'static',    dur:'02:48', year:'2024', role:'sound design',             client:'anthology series', tools:'sound particles · ozone',
+     desc:`Anthology episode. Synthesized weather and three layers of crowd ambience — none of them recorded outside.`},
+    {name:'mirror',    dur:'03:22', year:'2023', role:'sound design (7.1 → mono)', client:'sxsw selection',   tools:'nuendo · soundminer',
+     desc:`Psychological thriller. Whisper-track designed in 7.1, then bounced back through a single mono speaker for fragility.`},
+    {name:'lanterns',  dur:'04:05', year:'2022', role:'score',                    client:'period drama / bbc',tools:'hurdy-gurdy · glass harmonica · piano',
+     desc:`Period drama. Practical instruments only — hurdy-gurdy, glass harmonica, prepared piano. No synthesis touched.`},
+    {name:'salt',      dur:'02:18', year:'2023', role:'sound design + field rec',  client:'docs against gravity', tools:'reaper · field recorders (×4)',
+     desc:`Documentary about coastal erosion. Field recordings from three trips spanning 14 months, layered into a single bed.`},
+    {name:'corridor',  dur:'05:01', year:'2025', role:'sound design',             client:'sci-fi anthology',  tools:'ableton · granular',
+     desc:`Sci-fi short. Engine room hums built entirely from kitchen appliances, pitched and granular-stretched.`},
+    {name:'window',    dur:'03:10', year:'2024', role:'score (room tone only)',    client:'one-act festival', tools:'pro tools · convolution',
+     desc:`A two-hander shot in a single apartment. The score IS the room tone, processed.`},
+    {name:'rain.iv',   dur:'04:46', year:'2025', role:'sound design',             client:'weather studies #04',tools:'tascam dr-100 · ableton',
+     desc:`Fourth installment in a series of weather studies. 28 minutes of rain, no two seconds identical.`}
+  ],
+  sound: [
+    {name:'kinetic',  dur:'02:30', year:'2024', role:'sound design',          client:'gallery installation', tools:'max/msp · contact mics',
+     desc:`Kinetic sculpture installation. Each moving part triggers a layered drone; the audio rig listens to the sculpture, not to a click track.`},
+    {name:'breath',   dur:'03:10', year:'2023', role:'sound design + foley',  client:'silent film restoration', tools:'foley pit · re-amp',
+     desc:`Full Foley pass for a restored 1924 silent film. Two-week shoot at the Foley pit, every footstep, every door.`},
+    {name:'tunnel',   dur:'01:48', year:'2024', role:'sound design',          client:'theatre / vr hybrid', tools:'ambisonics · pro tools',
+     desc:`Theatre piece staged inside a VR rig. Binaural design for 12 simultaneous audience members in a shared tunnel.`},
+    {name:'morse',    dur:'00:55', year:'2022', role:'sound design',          client:'museum audio guide',  tools:'reaper · custom samples',
+     desc:`Museum permanent collection audio. 47 trigger points, each with a 4-layer ambient bed that crossfades by proximity.`},
+    {name:'siren',    dur:'01:20', year:'2023', role:'sound design',          client:'public art commission', tools:'field recorders · ableton',
+     desc:`Public sound installation for a coastal town. Field recordings of the tide layered into a continuous 24-hour piece.`},
+    {name:'thread.fx',dur:'02:15', year:'2024', role:'sound design',          client:'fashion runway show', tools:'ableton · live performance',
+     desc:`Runway show sound design. Performed live from the lighting booth, reactive to model timing.`}
+  ],
+  music: [
+    {name:'drift',  dur:'05:50', year:'2024', role:'composition + production', client:'self-released (ep)', tools:'modular · upright piano',
+     desc:`Solo EP, four tracks. Modular synth and a detuned upright piano, recorded across one weekend in studio b.`},
+    {name:'paper',  dur:'04:12', year:'2023', role:'production + mix',          client:'spoken-word collab', tools:'reaper · re-amped guitar',
+     desc:`Collaboration with a poet. Spoken word over field-recorded rain and re-amped guitar fed back into a small room.`},
+    {name:'silver', dur:'06:30', year:'2024', role:'composition',               client:'planetarium commission', tools:'ableton · spectroscopy data',
+     desc:`Long-form ambient piece for a planetarium. Generated harmonics from real spectroscopy data — the score is the sky.`},
+    {name:'ember',  dur:'03:55', year:'2022', role:'composition + production', client:'cassette label',     tools:'op-1 · tape',
+     desc:`Five-track EP. Each track in the same key, descending one octave per song. Mastered to tape.`},
+    {name:'caldera',dur:'07:20', year:'2025', role:'composition',               client:'headphone label',    tools:'ableton · convolution',
+     desc:`Album-length piece for headphones. Slow modulation across 47 minutes; no edit longer than 4 seconds.`},
+    {name:'kite',   dur:'04:48', year:'2023', role:'composition + performance',client:`children's record`,   tools:'toy piano · glock · sm7',
+     desc:`Children's record. Toy piano, glockenspiel, voice — everything tracked with a single SM7.`},
+    {name:'pollen', dur:'05:11', year:'2024', role:'audio direction',           client:'gallery installation', tools:'max/msp · temperature sensor',
+     desc:`Audiovisual installation. Generative score reacting to gallery temperature — louder when the room fills with people.`},
+    {name:'cobalt', dur:'06:02', year:'2025', role:'composition',               client:'speculative soundtrack', tools:'kontakt · piano',
+     desc:`Soundtrack album for a film that doesn't exist yet. The poster came first.`},
+    {name:'thread', dur:'03:40', year:'2024', role:'composition + performance',client:'live tape loops',    tools:'tape decks · contact mic',
+     desc:`Live tape loops performance, recorded in one take at a former silk mill.`}
+  ]
+};
+
+const SECTIONS = {
+  main: {
+    screen_title: 'STUDIO',
+    screen_cat:   'all · 35 works',
+    screen_time:  'since 2021',
+    title: 'konstantin troitsky',
+    desc: `Independent sound studio based in Moscow. Six years scoring shorts and features, with selected commercial, game and installation work. Available worldwide for remote sessions; on-site for projects in EU. Currently booking from late 2026.`,
+    year: 'since 2021', role: 'sound design + score',
+    tools: 'pro tools · ableton · op-1 · reaper · genelec 8331',
+    micro: 'studio · 35 works · est. 2021'
+  },
+  about: {
+    screen_title: 'ABOUT',
+    screen_cat:   'section · about',
+    screen_time:  '—',
+    title: 'about',
+    desc: `Sound designer and composer based in Moscow, available worldwide. Trained as a violinist, derailed by tape. Six years scoring shorts and features, plus selected commercial, game and installation work. Studio kit centred on Pro Tools, Ableton, an OP-1, and a small mountain of field recorders.`,
+    year: 'since 2021',
+    tools: 'pro tools · ableton · op-1 · reaper',
+    micro: 'composer · moscow · worldwide'
+  }
+};
+
+let activeCat = 'showreel';
+let activeIdx = 0;
+let activeSection = 'main';
+let currentTimbre = 'pad';
+const catIdx = {showreel: 0, film: 0, sound: 0, music: 0};
+
+// Navigation history — RW goes back through it
+const navHistory = [];
+function pushHistory() {
+  const state = { section: activeSection, cat: activeCat, idx: activeIdx };
+  // Don't push duplicates
+  const last = navHistory[navHistory.length - 1];
+  if (last && last.section === state.section && last.cat === state.cat && last.idx === state.idx) return;
+  navHistory.push(state);
+  if (navHistory.length > 50) navHistory.shift();
+}
+function goBack() {
+  if (navHistory.length < 2) return;
+  navHistory.pop(); // current state
+  const prev = navHistory[navHistory.length - 1];
+  activeSection = prev.section;
+  activeCat = prev.cat;
+  activeIdx = prev.idx;
+  catIdx[activeCat] = activeIdx;
+  // sync section buttons
+  document.querySelectorAll('.btn.fn').forEach(f => f.classList.remove('on'));
+  const sectionMap = { main: '.btn.fn.t1', work: '.btn.fn.t2', about: '.btn.fn.t3' };
+  const sel = sectionMap[activeSection];
+  if (sel) {
+    const btn = document.querySelector(sel);
+    if (btn) btn.classList.add('on');
+  }
+  render();
+}
+
+// ───────── waveform bars ──────────
+(() => {
+  const w = document.getElementById('wave');
+  for (let i = 0; i < 60; i++) {
+    const b = document.createElement('div');
+    b.className = 'b';
+    b.style.height = (8 + Math.abs(Math.sin(i * 0.4) * 16) + Math.random() * 6) + 'px';
+    w.appendChild(b);
+  }
+})();
+
+// ───────── piano keyboard ──────────
+const WHITE_NOTES = ['C4','D4','E4','F4','G4','A4','B4','C5','D5','E5','F5','G5','A5','B5'];
+// Each black key is positioned over the boundary AFTER white key index N (0-based)
+const BLACK_KEYS = [
+  {note:'C#4', after:0}, {note:'D#4', after:1},
+  {note:'F#4', after:3}, {note:'G#4', after:4}, {note:'A#4', after:5},
+  {note:'C#5', after:7}, {note:'D#5', after:8},
+  {note:'F#5', after:10}, {note:'G#5', after:11}, {note:'A#5', after:12}
+];
+const NOTE_FREQ = (n) => {
+  const map = {C:0,'C#':1,D:2,'D#':3,E:4,F:5,'F#':6,G:7,'G#':8,A:9,'A#':10,B:11};
+  const m = n.match(/([A-G]#?)(\d)/);
+  const semi = map[m[1]] + (parseInt(m[2]) - 4) * 12;
+  return 440 * Math.pow(2, (semi - 9) / 12);
+};(() => {
+  const whiteRow = document.getElementById('white-keys');
+  const blackOverlay = document.getElementById('black-keys');
+  const TOTAL_WHITE = WHITE_NOTES.length; // 14
+  const BLACK_W = 5; // % of total
+
+  WHITE_NOTES.forEach((n) => {
+    const el = document.createElement('div');
+    el.className = 'key w';
+    el.dataset.note = n;
+    const trigger = (ev) => { ev.preventDefault(); playNote(n, el); };
+    el.addEventListener('mousedown', trigger);
+    el.addEventListener('touchstart', trigger, {passive: false});
+    whiteRow.appendChild(el);
+  });
+
+  BLACK_KEYS.forEach(({note, after}) => {
+    const el = document.createElement('div');
+    el.className = 'key b';
+    el.dataset.note = note;
+    // boundary index = after + 1 (the boundary BETWEEN white[after] and white[after+1])
+    const boundary = after + 1;
+    el.style.left = `calc(${boundary} * (100% / ${TOTAL_WHITE}) - ${BLACK_W / 2}%)`;
+    el.style.width = BLACK_W + '%';
+    const trigger = (ev) => { ev.preventDefault(); ev.stopPropagation(); playNote(note, el); };
+    el.addEventListener('mousedown', trigger);
+    el.addEventListener('touchstart', trigger, {passive: false});
+    blackOverlay.appendChild(el);
+  });
+})();
+
+let audioCtx;
+
+const TIMBRES = {
+  synth(t, f) {
+    const osc1 = audioCtx.createOscillator();
+    const osc2 = audioCtx.createOscillator();
+    osc1.type = 'sawtooth'; osc1.frequency.value = f;
+    osc2.type = 'sine';     osc2.frequency.value = f / 2;
+    const g = audioCtx.createGain();
+    const filter = audioCtx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(800, t);
+    filter.frequency.exponentialRampToValueAtTime(2400, t + 0.05);
+    filter.frequency.exponentialRampToValueAtTime(400, t + 0.8);
+    filter.Q.value = 4;
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(0.16, t + 0.008);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.7);
+    osc1.connect(filter); osc2.connect(filter);
+    filter.connect(g); g.connect(audioCtx.destination);
+    osc1.start(t); osc2.start(t);
+    osc1.stop(t + 0.75); osc2.stop(t + 0.75);
+  },
+
+  drum(t, f) {
+    // noise burst (bandpassed) + pitched click
+    const bufSize = Math.floor(audioCtx.sampleRate * 0.25);
+    const buffer = audioCtx.createBuffer(1, bufSize, audioCtx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufSize; i++) data[i] = Math.random() * 2 - 1;
+    const noise = audioCtx.createBufferSource();
+    noise.buffer = buffer;
+    const nFilter = audioCtx.createBiquadFilter();
+    nFilter.type = 'bandpass';
+    nFilter.frequency.value = Math.min(f * 2, 6000);
+    nFilter.Q.value = 1.5;
+    const nGain = audioCtx.createGain();
+    nGain.gain.setValueAtTime(0.22, t);
+    nGain.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+    noise.connect(nFilter); nFilter.connect(nGain); nGain.connect(audioCtx.destination);
+    noise.start(t); noise.stop(t + 0.22);
+
+    const click = audioCtx.createOscillator();
+    click.type = 'sine';
+    click.frequency.setValueAtTime(f * 2, t);
+    click.frequency.exponentialRampToValueAtTime(f * 0.5, t + 0.06);
+    const cGain = audioCtx.createGain();
+    cGain.gain.setValueAtTime(0.3, t);
+    cGain.gain.exponentialRampToValueAtTime(0.001, t + 0.14);
+    click.connect(cGain); cGain.connect(audioCtx.destination);
+    click.start(t); click.stop(t + 0.16);
+  },
+
+  pad(t, f) {
+    // warm triangle with subtle vibrato, soft attack, long release
+    const osc = audioCtx.createOscillator();
+    osc.type = 'triangle'; osc.frequency.value = f;
+    const lfo = audioCtx.createOscillator();
+    lfo.frequency.value = 5.5;
+    const lfoGain = audioCtx.createGain();
+    lfoGain.gain.value = f * 0.006;
+    lfo.connect(lfoGain); lfoGain.connect(osc.frequency);
+    const filter = audioCtx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = 1800;
+    const g = audioCtx.createGain();
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(0.18, t + 0.04);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 1.2);
+    osc.connect(filter); filter.connect(g); g.connect(audioCtx.destination);
+    osc.start(t); lfo.start(t);
+    osc.stop(t + 1.25); lfo.stop(t + 1.25);
+  },
+
+  pluck(t, f) {
+    // short, percussive — sharp attack, quick filter decay, fast amp decay
+    const osc = audioCtx.createOscillator();
+    osc.type = 'triangle'; osc.frequency.value = f;
+    const filter = audioCtx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(Math.min(f * 8, 8000), t);
+    filter.frequency.exponentialRampToValueAtTime(Math.max(f * 0.7, 200), t + 0.35);
+    filter.Q.value = 2;
+    const g = audioCtx.createGain();
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(0.28, t + 0.003);   // very sharp attack
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.45); // fast decay
+    osc.connect(filter); filter.connect(g); g.connect(audioCtx.destination);
+    osc.start(t); osc.stop(t + 0.5);
+  }
+};
+
+function playNote(note, el) {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  const t = audioCtx.currentTime;
+  const f = NOTE_FREQ(note);
+  (TIMBRES[currentTimbre] || TIMBRES.pad)(t, f);
+  if (el) {
+    el.classList.add('playing');
+    setTimeout(() => el.classList.remove('playing'), 200);
+  }
+}
+
+function updatePreview(cat, cur) {
+  const preview = document.getElementById('preview');
+  if (!preview) return;
+  const VIDEO_CATS = new Set(['showreel', 'film']);
+  const isVideo = VIDEO_CATS.has(cat);
+  preview.setAttribute('data-mode', isVideo ? 'video' : 'audio');
+
+  if (isVideo) {
+    const fpsMap = {showreel: '24 fps', film: '24 fps'};
+    const resMap = {showreel: '1920×1080 · h.264', film: '1920×1080 · h.264'};
+    document.getElementById('video-meta-l').textContent = resMap[cat] || '1920×1080 · h.264';
+    document.getElementById('video-meta-r').textContent = `${fpsMap[cat] || '24 fps'} · stereo mix`;
+  }
+}
+
+// ───────── core: render state ──────────
+function updateEncoderDials() {
+  const restMap = {showreel: '-40deg', film: '30deg', sound: '-75deg', music: '60deg'};
+  document.querySelectorAll('.enc').forEach(enc => {
+    const cat = enc.dataset.cat;
+    const dial = enc.querySelector('.dial-big');
+    if (cat === activeCat && activeSection === 'work') {
+      const works = PROJECTS[cat];
+      const range = 220, start = -110;
+      const angle = works.length > 1
+        ? (activeIdx / (works.length - 1)) * range + start
+        : 0;
+      dial.style.setProperty('--rot', angle + 'deg');
+    } else {
+      dial.style.setProperty('--rot', restMap[cat] || '0deg');
+    }
+  });
+}
+
+function render() {
+  pushHistory();
+  if (activeSection === 'main' || activeSection === 'about') {
+    renderSectionInfo(activeSection);
+    // still update encoder rest positions
+    updateEncoderDials();
+    // numbers: clear active selection
+    document.querySelectorAll('.num').forEach(c => c.classList.remove('on'));
+    return;
+  }
+
+  const works = PROJECTS[activeCat];
+  const cur = works[activeIdx];
+
+  // screen
+  document.getElementById('screen-title').textContent = cur.name.toUpperCase();
+  document.getElementById('screen-cat').textContent =
+    `${activeCat} · ${(activeIdx + 1).toString().padStart(2,'0')} of ${works.length.toString().padStart(2,'0')}`;
+  document.getElementById('screen-time').textContent = `00:00 / ${cur.dur}`;
+  updatePreview(activeCat, cur);
+
+  // encoders — active state + rotation
+  document.querySelectorAll('.enc').forEach(e => e.classList.remove('acc'));
+  const enc = document.querySelector(`.enc[data-cat="${activeCat}"]`);
+  if (enc) enc.classList.add('acc');
+  updateEncoderDials();
+
+  // number cells — just update active/empty state, label stays "project"
+  document.querySelectorAll('.num').forEach((cell, i) => {
+    cell.classList.remove('on', 'empty');
+    if (i < works.length) {
+      if (i === activeIdx) cell.classList.add('on');
+    } else {
+      cell.classList.add('empty');
+    }
+  });
+
+  // info block (below device)
+  document.getElementById('info-title').textContent = cur.name;
+  setCredit('info-year',   cur.year);
+  setCredit('info-role',   cur.role);
+  setCredit('info-client', cur.client);
+  setCredit('info-dur',    cur.dur);
+  document.getElementById('info-desc').textContent = cur.desc;
+  document.getElementById('info-tools').textContent = cur.tools;
+  // micro strip for mobile
+  document.getElementById('info-block').setAttribute(
+    'data-micro',
+    `${activeCat} · ${cur.year} · ${cur.dur}`
+  );
+}
+
+function setCredit(id, value) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const wrapper = el.closest('.credit');
+  const isEmpty = !value || value === '—' || value === '';
+  if (wrapper) wrapper.style.display = isEmpty ? 'none' : '';
+  if (!isEmpty) el.textContent = value;
+}
+
+function renderSectionInfo(name) {
+  const s = SECTIONS[name];
+  if (!s) return;
+  document.getElementById('screen-title').textContent = s.screen_title;
+  document.getElementById('screen-cat').textContent   = s.screen_cat;
+  document.getElementById('screen-time').textContent  = s.screen_time;
+  // main/about screens — show the waveform (neutral)
+  document.getElementById('preview').setAttribute('data-mode', 'audio');
+  document.getElementById('info-title').textContent = s.title;
+  setCredit('info-year',   s.year);
+  setCredit('info-role',   s.role);
+  setCredit('info-client', s.client);
+  setCredit('info-dur',    s.dur);
+  document.getElementById('info-desc').textContent  = s.desc;
+  document.getElementById('info-tools').textContent = s.tools;
+  document.getElementById('info-block').setAttribute('data-micro', s.micro || s.year || '—');
+  // encoders — deactivate
+  document.querySelectorAll('.enc').forEach(e => e.classList.remove('acc'));
+}
+
+// ───────── interactions ──────────
+function jumpToWork() {
+  activeSection = 'work';
+  document.querySelectorAll('.btn.fn').forEach(f => f.classList.remove('on'));
+  const t2 = document.querySelector('.btn.fn.t2');
+  if (t2) t2.classList.add('on');
+}
+
+function setCategory(cat, el) {
+  if (!(cat in PROJECTS)) return;
+  if (cat === activeCat && activeSection === 'work') {
+    // Already active — advance to next work in this category
+    catIdx[cat] = (catIdx[cat] + 1) % PROJECTS[cat].length;
+  } else {
+    jumpToWork();
+    activeCat = cat;
+    // Keep catIdx[cat] — each encoder remembers its position
+  }
+  activeIdx = catIdx[cat];
+  render();
+}
+
+function setIndex(idx) {
+  const works = PROJECTS[activeCat];
+  if (idx < 0 || idx >= works.length) return;
+  if (activeSection !== 'work') jumpToWork();
+  catIdx[activeCat] = idx;
+  activeIdx = idx;
+  render();
+}
+
+function shuffle(el) {
+  jumpToWork();
+  const cats = Object.keys(PROJECTS);
+  let newCat, newIdx, tries = 0;
+  do {
+    newCat = cats[Math.floor(Math.random() * cats.length)];
+    newIdx = Math.floor(Math.random() * PROJECTS[newCat].length);
+    tries++;
+  } while (newCat === activeCat && newIdx === activeIdx && tries < 8);
+  activeCat = newCat;
+  activeIdx = newIdx;
+  catIdx[newCat] = newIdx;
+  render();
+  if (el) {
+    el.classList.remove('flashing');
+    void el.offsetWidth;
+    el.classList.add('flashing');
+  }
+}
+
+// transport
+let playing = false;
+function togglePlay() {
+  playing = !playing;
+  const screen = document.getElementById('screen');
+  const btn = document.getElementById('btn-play');
+  if (playing) {
+    screen.classList.add('playing');
+    btn.classList.add('on');
+    btn.querySelector('.glyph').textContent = '▍▍';
+    animateBars();
+  } else {
+    screen.classList.remove('playing');
+    btn.classList.remove('on');
+    btn.querySelector('.glyph').textContent = '▶';
+  }
+}
+
+function bumpCv(ev, el) {
+  // animation feedback; href = '#' is a placeholder until a real CV URL is set
+  if (el.getAttribute('href') === '#') ev.preventDefault();
+  el.classList.add('pop');
+  setTimeout(() => el.classList.remove('pop'), 220);
+}
+
+function trBtn(kind) {
+  if (kind === 'stop') {
+    playing = false;
+    document.getElementById('screen').classList.remove('playing');
+    const p = document.getElementById('btn-play');
+    p.classList.remove('on');
+    p.querySelector('.glyph').textContent = '▶';
+  } else if (kind === 'rw') {
+    goBack();
+  }
+}
+
+let barIvl = null;
+function animateBars() {
+  if (barIvl) return;
+  const bars = document.querySelectorAll('#wave .b');
+  barIvl = setInterval(() => {
+    if (!playing) { clearInterval(barIvl); barIvl = null; return; }
+    bars.forEach((b, i) => {
+      const h = 6 + Math.abs(Math.sin(Date.now() / 200 + i * 0.5) * 18) + Math.random() * 4;
+      b.style.height = h + 'px';
+    });
+  }, 80);
+}
+
+// sections / modes
+function setSection(id, el) {
+  document.querySelectorAll('.btn.fn').forEach(f => f.classList.remove('on'));
+  el.classList.add('on');
+  activeSection = id;
+  document.getElementById('screen-mode').textContent = currentTimbre;
+  render();
+}
+function setMode(id, el) {
+  document.querySelectorAll('.btn.mode').forEach(b => b.classList.remove('on'));
+  el.classList.add('on');
+  currentTimbre = id;
+  document.getElementById('screen-mode').textContent = id;
+}
+
+// contact modal
+function openContact() {
+  document.getElementById('contact-modal').classList.add('open');
+}
+function closeContact(ev) {
+  // Overlay click: only close if user clicked the overlay backdrop (not modal content)
+  if (ev && ev.currentTarget && ev.currentTarget.id === 'contact-modal' && ev.target !== ev.currentTarget) {
+    return;
+  }
+  document.getElementById('contact-modal').classList.remove('open');
+}
+function submitContact(ev) {
+  ev.preventDefault();
+  const btn = ev.target.querySelector('button[type="submit"]');
+  btn.textContent = 'sent ✓';
+  btn.disabled = true;
+  setTimeout(() => {
+    closeContact();
+    btn.textContent = 'send →';
+    btn.disabled = false;
+    ev.target.reset();
+  }, 1400);
+}
+// ESC to close
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeContact();
+});
+
+// ───────── init ──────────
+render();
+</script>
+</body>
+</html>
