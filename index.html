@@ -1,0 +1,1815 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Konstantin Troitsky — sound design</title>
+<meta name="description" content="Sound designer and audio engineer based near Paris. Audio walks, podcasts, installations and film.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=VT323&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #FFFFFF;
+  --ink: #1A1A1A;
+  --soft: #F0F0F0;
+  --muted: #888888;
+  --hairline: rgba(26,26,26,0.2);
+  --black-key-soft: #3A3A3A;
+
+  --screen-bg: #0A100D;
+  --screen-glow: #7FE5B9;
+  --screen-blue: #6FB8F2;
+  --screen-purple: #C2ABE8;
+  --screen-pink: #F26580;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  font-feature-settings: 'ss01';
+}
+
+body {
+  padding: 24px;
+  min-height: 100vh;
+}
+
+.frame { max-width: none; margin: 0 auto; position: relative; }
+
+/* Edge tick rails */
+.tick-rail {
+  position: absolute;
+  top: 0; bottom: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 6px 0;
+  pointer-events: none;
+}
+.tick-rail.l { left: -16px; }
+.tick-rail.r { right: -16px; }
+.tick-rail .t { width: 10px; height: 1px; background: var(--ink); }
+.tick-rail .t.big { width: 14px; }
+
+/* Device */
+.device {
+  background: var(--bg);
+  position: relative;
+}
+.device::before, .device::after {
+  content: '';
+  position: absolute;
+  width: 5px; height: 5px;
+  background: var(--ink);
+}
+.device::before { top: -3px; left: -3px; }
+.device::after { bottom: -3px; right: -3px; }
+.corner-tr, .corner-bl {
+  position: absolute;
+  width: 5px; height: 5px;
+  background: var(--ink);
+}
+.corner-tr { top: -3px; right: -3px; }
+.corner-bl { bottom: -3px; left: -3px; }
+
+/* Column ruler */
+.col-ruler {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  padding: 6px 0 4px;
+  border-bottom: 1px dashed var(--hairline);
+}
+.col-ruler span {
+  text-align: center;
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 0.05em;
+  border-right: 1px dotted var(--hairline);
+}
+.col-ruler span:last-child { border-right: none; }
+
+/* Grid */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-auto-rows: minmax(60px, auto);
+  border-top: 1px solid var(--ink);
+  border-left: 1px solid var(--ink);
+}
+.cell {
+  border-right: 1px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
+  padding: 10px 12px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  transition: background 0.12s, color 0.12s;
+  min-width: 0;
+}
+
+.cell .anno {
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+.cell .lbl { font-size: 13px; font-weight: 500; margin-top: 6px; }
+.cell .lbl-md { font-size: 16px; font-weight: 500; margin-top: 6px; letter-spacing: -0.01em; }
+
+/* Spans */
+.span-1 { grid-column: span 1; }
+.span-2 { grid-column: span 2; }
+.span-3 { grid-column: span 3; }
+.span-4 { grid-column: span 4; }
+.span-5 { grid-column: span 5; }
+.span-6 { grid-column: span 6; }
+.span-7 { grid-column: span 7; }
+.span-8 { grid-column: span 8; }
+.span-12 { grid-column: span 12; }
+.row-2 { grid-row: span 2; }
+.row-3 { grid-row: span 3; }
+
+/* Patterns — SVG backgrounds that scale to fit the cell exactly */
+.fill-hatch {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' preserveAspectRatio='none'><defs><pattern id='p' patternUnits='userSpaceOnUse' width='12' height='12' patternTransform='rotate(45)'><line x1='0' y1='0' x2='0' y2='12' stroke='%231A1A1A' stroke-width='1.2'/></pattern></defs><rect width='100%25' height='100%25' fill='url(%23p)'/></svg>");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+.fill-hatch-r {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' preserveAspectRatio='none'><defs><pattern id='p' patternUnits='userSpaceOnUse' width='12' height='12' patternTransform='rotate(-45)'><line x1='0' y1='0' x2='0' y2='12' stroke='%231A1A1A' stroke-width='1.2'/></pattern></defs><rect width='100%25' height='100%25' fill='url(%23p)'/></svg>");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+.fill-dots {
+  background-image: radial-gradient(var(--ink) 0.9px, transparent 1.2px);
+  background-size: 9px 9px;
+  background-position: center;
+  background-repeat: round;
+}
+.fill-grid-mini {
+  background-image:
+    linear-gradient(to right, var(--hairline) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--hairline) 1px, transparent 1px);
+  background-size: 9px 9px;
+  background-position: center;
+  background-repeat: round;
+}
+
+/* Screen */
+.screen {
+  background: var(--screen-bg);
+  color: var(--screen-glow);
+  font-family: 'VT323', monospace;
+  padding: 20px 24px 18px;
+  justify-content: space-between;
+  border-right: 1px solid var(--ink);
+}
+.screen .row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.screen .row-status { font-size: 18px; opacity: 0.9; }
+.screen .row-status > span:first-child { color: var(--screen-blue); }
+#screen-mode { color: var(--screen-purple); }
+.screen .blink { animation: blink 1.2s steps(2) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+.screen h2 {
+  font-size: clamp(40px, 5.5vw, 80px);
+  color: var(--screen-pink);
+  line-height: 0.92;
+  letter-spacing: 0.01em;
+  font-weight: normal;
+  font-family: 'VT323', monospace;
+  margin-top: 6px;
+}
+.screen .row-meta { font-size: 17px; opacity: 0.85; margin-top: 6px; }
+#screen-cat { color: var(--screen-purple); }
+#screen-time { color: var(--screen-glow); }
+.screen .waveform {
+  height: 40px;
+  display: flex;
+  align-items: end;
+  gap: 2px;
+  margin-top: 12px;
+}
+.screen .waveform .b {
+  flex: 1;
+  background: var(--screen-glow);
+  opacity: 0.5;
+  transition: height 0.2s, opacity 0.2s;
+}
+.screen.playing .waveform .b { opacity: 0.9; }
+.screen .vu {
+  display: flex;
+  justify-content: space-between;
+  font-size: 16px;
+  margin-top: 10px;
+  letter-spacing: 0.04em;
+}
+.screen .vu > span:first-child { color: var(--screen-glow); opacity: 0.85; }
+.screen .vu > span:last-child  { color: var(--screen-blue); opacity: 0.7; }
+
+/* Preview region — toggles between audio waveform / video filmstrip, fixed height */
+.preview .preview-audio,
+.preview .preview-video {
+  display: none;
+  height: 86px;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+.preview[data-mode="audio"] .preview-audio { display: flex; }
+.preview[data-mode="video"] .preview-video { display: flex; }
+
+/* Video preview: thin filmstrip with sprocket-like ticks + a play triangle */
+.filmstrip {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 1px;
+  overflow: hidden;
+  min-height: 0;
+}
+.filmstrip-top,
+.filmstrip-bot {
+  display: flex;
+  height: 6px;
+  flex-shrink: 0;
+  background: var(--screen-bg);
+  border-top: 1px solid rgba(255,255,255,0.06);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.filmstrip-top span,
+.filmstrip-bot span {
+  flex: 1;
+  margin: 1.5px 3px;
+  background: var(--screen-glow);
+  opacity: 0.55;
+  border-radius: 0.5px;
+}
+.frame-window {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  background: linear-gradient(180deg, rgba(127,229,185,0.04), rgba(111,184,242,0.06));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.frame-window::before,
+.frame-window::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0;
+  height: 1px;
+  background: rgba(127,229,185,0.18);
+}
+.frame-window::before { top: 35%; }
+.frame-window::after  { bottom: 28%; }
+.play-tri {
+  width: 26px;
+  height: 26px;
+  color: var(--screen-pink);
+  filter: drop-shadow(0 0 6px rgba(242,101,128,0.35));
+}
+.screen.playing .play-tri {
+  opacity: 0.35;
+}
+.preview-video .vu { margin-top: 6px; flex-shrink: 0; }
+
+/* Encoders — round colored caps like real OP-1 */
+.enc {
+  cursor: pointer;
+  align-items: center;
+  text-align: center;
+  padding: 10px 8px;
+  justify-content: space-between;
+  gap: 2px;
+}
+.enc:hover { background: var(--soft); }
+.enc .anno { align-self: flex-start; }
+.enc .dial-big {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  background: var(--enc-color);
+  border: 1.5px solid var(--ink);
+  position: relative;
+  flex-shrink: 0;
+  margin: 2px 0;
+}
+.enc .dial-big::after {
+  content: '';
+  position: absolute;
+  top: 4px; left: 50%;
+  width: 2px; height: 10px;
+  background: var(--ink);
+  transform: translateX(-50%) rotate(var(--rot, 0deg));
+  transform-origin: 50% 15px;
+  transition: transform 0.4s cubic-bezier(0.4, 1.7, 0.5, 1);
+}
+.enc.enc-1 .dial-big { --rot: -40deg; }
+.enc.enc-2 .dial-big { --rot: 30deg; }
+.enc.enc-3 .dial-big { --rot: -75deg; }
+.enc.enc-4 .dial-big { --rot: 60deg; }
+
+.enc .lbl-name {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+}
+.enc .count-color {
+  font-size: 10px;
+  color: var(--enc-color);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+
+/* per-encoder colors — OP-1 order: blue / green / white / orange */
+.enc.enc-1 { --enc-color: #2A7BC5; }
+.enc.enc-2 { --enc-color: #5BBE5B; }
+.enc.enc-3 { --enc-color: #C9C3B3; }
+.enc.enc-4 { --enc-color: #FF6B1F; }
+
+/* white-cap (enc-3): outline-only dial so it reads on white bg */
+.enc.enc-3 .dial-big {
+  background: var(--bg);
+  border: 2.5px solid var(--ink);
+}
+.enc.enc-3 .count-color { color: #6E6A5E; }
+
+/* Active state — cell inverts, colors stay */
+.enc.acc { background: var(--ink); color: var(--bg); }
+.enc.acc:hover { background: var(--ink); }
+.enc.acc .anno { color: var(--bg); opacity: 0.7; }
+.enc.acc .dial-big { border-color: var(--bg); }
+.enc.enc-3.acc .dial-big { background: var(--ink); border: 2.5px solid var(--bg); }
+.enc.acc .dial-big::after { background: var(--bg); }
+.enc.enc-3.acc .count-color { color: var(--bg); opacity: 0.8; }
+
+/* Speaker grille (decorative perforated panel) */
+.speaker {
+  padding: 0;
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(circle, var(--ink) 1.6px, transparent 2.2px);
+  background-size: 12px 12px;
+  background-position: 6px 6px;
+}
+
+/* Aux (shuffle) — clickable */
+.aux {
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.1s, transform 0.08s;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+.aux:hover { background: var(--soft); }
+.aux:active { transform: translateY(0.5px); }
+.aux.flashing {
+  animation: flash 0.4s ease-out;
+}
+@keyframes flash {
+  0% { background: var(--ink); color: var(--bg); }
+  100% { background: var(--bg); color: var(--ink); }
+}
+
+/* Number selector row */
+.num {
+  cursor: pointer;
+  user-select: none;
+  text-align: left;
+  padding: 10px 12px;
+  gap: 4px;
+}
+.num:hover { background: var(--soft); }
+.num:active { transform: translateY(0.5px); }
+.num.on { background: var(--ink); color: var(--bg); }
+.num.on .anno { color: var(--bg); opacity: 0.7; }
+.num.on:hover { background: var(--ink); }
+.num.empty { cursor: default; }
+.num.empty .num-big { opacity: 0.18; }
+.num.empty .anno { opacity: 0.18; }
+.num.empty:hover { background: var(--bg); }
+.num .anno {
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.num .num-big {
+  font-size: clamp(22px, 2.4vw, 32px);
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  margin-top: auto;
+}
+
+/* Buttons (function + mode) */
+.btn {
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.1s, color 0.1s, transform 0.08s;
+  justify-content: center;
+}
+.btn:hover { background: var(--soft); }
+.btn:active { transform: translateY(0.5px); }
+.btn.on { background: var(--ink); color: var(--bg); }
+.btn.on .anno { color: var(--bg); opacity: 0.7; }
+.btn.on:hover { background: var(--ink); }
+.btn.fn .corner {
+  position: absolute;
+  top: 8px; right: 10px;
+  width: 8px; height: 8px;
+  background: var(--ink);
+}
+.btn.fn.t2 .corner { background: var(--ink); opacity: 0.6; }
+.btn.fn.t3 .corner { background: var(--ink); opacity: 0.3; }
+.btn.fn.t4 .corner { background: transparent; border: 1px solid var(--ink); }
+.btn.fn.on .corner { background: var(--bg); opacity: 1; }
+.btn.fn.on.t4 .corner { border-color: var(--bg); background: transparent; }
+
+/* Transport */
+.tr {
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  text-align: center;
+  padding: 10px 8px;
+}
+.tr:hover { background: var(--soft); }
+.tr:active { transform: translateY(1px); }
+.tr .glyph { font-size: 18px; line-height: 1; }
+.tr .micro {
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  margin-top: 5px;
+  text-transform: uppercase;
+}
+.tr.on { background: var(--ink); color: var(--bg); }
+.tr.on .micro { color: var(--bg); opacity: 0.7; }
+.tr.on:hover { background: var(--ink); }
+
+/* CV download button — orange arrow, in place of REC */
+.tr.fav {
+  text-decoration: none;
+  color: var(--ink);
+}
+.tr.fav .glyph {
+  color: #FF6B1F;
+  font-size: 22px;
+  transition: transform 0.2s cubic-bezier(0.4, 1.7, 0.5, 1);
+}
+.tr.fav.pop .glyph { transform: translateY(3px); }
+
+/* Contact modal */
+.modal-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(26, 26, 26, 0.6);
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--bg);
+  border: 1px solid var(--ink);
+  padding: 28px 32px;
+  max-width: 480px;
+  width: 100%;
+  position: relative;
+  max-height: 90vh;
+  overflow: auto;
+}
+.modal-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+.modal-head .anno {
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+.modal-close {
+  background: none;
+  border: 1px solid var(--ink);
+  width: 26px; height: 26px;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: inherit;
+  color: var(--ink);
+  padding: 0;
+  line-height: 1;
+}
+.modal-close:hover { background: var(--ink); color: var(--bg); }
+.modal h3 {
+  font-size: 40px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 0.9;
+  margin: 0 0 10px;
+  text-transform: lowercase;
+}
+.modal p.lead {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+.modal form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.modal label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+.modal input, .modal textarea {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 13px;
+  padding: 8px 10px;
+  border: 1px solid var(--ink);
+  background: var(--bg);
+  color: var(--ink);
+  resize: vertical;
+  border-radius: 0;
+}
+.modal input:focus, .modal textarea:focus {
+  outline: none;
+  background: var(--soft);
+}
+.modal button[type="submit"] {
+  background: var(--ink);
+  color: var(--bg);
+  border: 1px solid var(--ink);
+  padding: 10px;
+  font-family: inherit;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  text-transform: lowercase;
+  margin-top: 4px;
+  border-radius: 0;
+}
+.modal button[type="submit"]:hover {
+  background: var(--bg);
+  color: var(--ink);
+}
+.modal-foot {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 22px;
+  padding-top: 14px;
+  border-top: 1px solid var(--hairline);
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* KEYBOARD — proper piano */
+.keyboard {
+  grid-column: span 12;
+  height: 220px;
+  padding: 0;
+  position: relative;
+  background: var(--bg);
+  display: block;
+}
+.white-keys {
+  position: absolute;
+  inset: 0;
+  display: flex;
+}
+.key.w {
+  flex: 1;
+  border-right: 1px solid var(--ink);
+  background: var(--bg);
+  cursor: pointer;
+  position: relative;
+  transition: background 0.08s;
+}
+.key.w:last-child { border-right: none; }
+.key.w:hover { background: var(--soft); }
+.key.w:active, .key.w.playing { background: #D8D8D8; }
+.black-keys {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 62%;
+  pointer-events: none;
+}
+.key.b {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  background: var(--ink);
+  cursor: pointer;
+  pointer-events: auto;
+  transition: background 0.08s;
+}
+.key.b:hover, .key.b:active, .key.b.playing { background: var(--black-key-soft); }
+.key .note-lbl {
+  position: absolute;
+  bottom: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: 0.05em;
+  pointer-events: none;
+}
+.key.b .note-lbl { color: var(--soft); opacity: 0.4; }
+
+/* Brand mark — vertical, only the word burushina is the link */
+.brand-cell {
+  align-items: center;
+  padding: 10px 6px;
+  overflow: hidden;
+}
+.brand-name {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: lowercase;
+  color: var(--ink);
+  text-decoration: none;
+  line-height: 1;
+  margin-top: auto;
+  margin-bottom: 4px;
+  transition: color 0.15s;
+  cursor: pointer;
+}
+.brand-name:hover { color: #9485D2; }
+
+/* Mobile — keep horizontal 12-col device, just compact */
+@media (max-width: 880px) {
+  body { padding: 6px; }
+
+  /* On mobile we focus on the device itself; written description is hidden */
+  .project-info { display: none; }
+
+  /* Compact cell sizing */
+  .grid { grid-auto-rows: minmax(40px, auto); }
+  .cell { padding: 5px 5px; }
+  .cell .anno { font-size: 7px; letter-spacing: 0.06em; }
+  .cell .lbl { font-size: 10px; margin-top: 3px; }
+  .cell .lbl-md { font-size: 11px; }
+
+  /* Screen */
+  .screen { padding: 8px 10px 6px; }
+  .screen h2 { font-size: 22px; }
+  .screen .row-status { font-size: 10px; }
+  .screen .row-meta { font-size: 10px; }
+  .screen .vu { font-size: 9px; margin-top: 4px; }
+  .screen .waveform { height: 18px; margin-top: 4px; }
+
+  /* Encoders */
+  .enc { padding: 3px 3px; gap: 1px; }
+  .enc .dial-big { width: 22px; height: 22px; margin: 1px 0; }
+  .enc .dial-big::after { width: 1.5px; height: 7px; top: 3px; transform-origin: 50% 9px; }
+  .enc .lbl-name { font-size: 9px; }
+  .enc .count-color { font-size: 7px; }
+
+  /* Transport */
+  .tr { padding: 4px 4px; }
+  .tr .glyph { font-size: 13px; }
+  .tr .micro { font-size: 6px; margin-top: 2px; }
+  .tr.fav .glyph { font-size: 16px; }
+
+  /* Function/mode buttons */
+  .btn.fn .corner { top: 5px; right: 6px; width: 6px; height: 6px; }
+
+  /* Numbers */
+  .num { padding: 4px 5px; gap: 2px; }
+  .num .num-big { font-size: 14px; }
+  .num .anno { font-size: 7px; }
+
+  /* Aux */
+  .aux .lbl-md { font-size: 10px; }
+
+  /* Keyboard */
+  .keyboard { height: 64px; }
+
+  /* Brand */
+  .brand-cell { padding: 6px 4px; }
+  .brand-name { font-size: 12px; letter-spacing: 0.03em; }
+
+  /* Modal */
+  .modal { padding: 18px; }
+  .modal h3 { font-size: 26px; }
+
+  /* Mobile name strip — replaces full info block */
+  .project-info {
+    display: flex !important;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 14px;
+    margin-top: 14px;
+    padding-top: 10px;
+    border-top: 1px solid var(--ink);
+  }
+  .project-info h2 {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1;
+    text-transform: lowercase;
+    margin: 0;
+    grid-column: unset;
+    flex-shrink: 0;
+  }
+  .project-info .info-credits,
+  .project-info .info-desc,
+  .project-info .info-side { display: none; }
+  /* Inject the micro-strip via pseudo on h2 — content set in JS via data-* */
+  .project-info::after {
+    content: attr(data-micro);
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    text-transform: uppercase;
+    text-align: right;
+    line-height: 1.4;
+  }
+}
+
+/* Project info block (below device) */
+.project-info {
+  margin-top: clamp(36px, 5vh, 64px);
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 0;
+  column-gap: 20px;
+  row-gap: 12px;
+}
+.project-info h2 {
+  grid-column: span 12;
+  font-size: clamp(32px, 4.2vw, 56px);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 0.9;
+  text-transform: lowercase;
+  margin: 0;
+}
+.info-credits {
+  grid-column: span 12;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  border-top: 1px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
+  padding: 10px 0;
+}
+.credit { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.credit .anno-k {
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+.credit .val {
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+}
+.info-desc {
+  grid-column: span 8;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--ink);
+  max-width: 680px;
+}
+.info-side {
+  grid-column: span 4;
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 0.06em;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-self: start;
+}
+.info-side .k { text-transform: uppercase; }
+.info-desc { white-space: pre-line; }
+.info-extra { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
+.info-extra:empty { display: none; }
+.info-side span:not(.k) { color: var(--ink); font-size: 11px; }
+@media (max-width: 880px) {
+  .info-desc, .info-side { grid-column: span 12; }
+  .info-credits { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ═════ MOBILE — variant B "index" (replaces the device on phones) ═════ */
+.m-site { display: none; }
+@media (max-width: 880px) {
+  html, body { overflow: visible !important; height: auto !important; width: auto !important; overscroll-behavior: none; }
+  body { padding: 0 !important; }
+  .frame { display: none !important; }
+  .m-site { display: block; min-height: 100vh; padding-bottom: calc(64px + env(safe-area-inset-bottom)); }
+
+  .m-anno { font-size: 10px; letter-spacing: 0.1em; color: var(--muted); text-transform: uppercase; }
+  .m-dot { width: 9px; height: 9px; border-radius: 50%; border: 1px solid var(--ink); display: inline-block; flex-shrink: 0; }
+  .m-dot.narrative { background: #2A7BC5; } .m-dot.music { background: #5BBE5B; }
+  .m-dot.installations { background: var(--bg); } .m-dot.film { background: #FF6B1F; }
+
+  .m-head { padding: 22px 16px 22px; }
+  .m-head h1 { font-size: 44px; font-weight: 700; letter-spacing: -0.05em; line-height: 0.88; margin-top: 10px; text-transform: lowercase; }
+  .m-head p { margin-top: 14px; font-size: 13px; line-height: 1.55; }
+
+  .m-grp { padding: 7px 16px; display: flex; align-items: center; gap: 8px; border-top: 1px solid var(--hairline); border-bottom: 1px solid var(--hairline); }
+  .m-item + .m-grp { margin-top: 18px; }
+  .m-grp .m-anno { color: var(--ink); }
+  .m-item + .m-item { border-top: 1px solid var(--hairline); }
+  .m-row {
+    display: grid; grid-template-columns: 30px 1fr auto; gap: 2px 8px; align-items: baseline;
+    width: 100%; padding: 12px 16px; background: none; border: 0; text-align: left;
+    font: inherit; color: inherit; cursor: pointer;
+  }
+  .m-row .t { font-weight: 500; font-size: 13px; }
+  .m-row .y, .m-row .s { font-size: 11px; color: var(--muted); }
+  .m-row .s { grid-column: 2 / 4; }
+  .m-item.open .m-row { background: var(--ink); color: var(--bg); }
+  .m-item.open .m-row .y, .m-item.open .m-row .s { color: #BBB; }
+  .m-card { display: none; padding: 14px 16px 18px 54px; background: var(--soft); font-size: 12.5px; line-height: 1.6; }
+  .m-item.open .m-card { display: block; }
+  .m-card p + p { margin-top: 10px; }
+  .m-card .m-org { font-size: 11px; color: var(--muted); margin-bottom: 10px; }
+  .m-card dl { margin-top: 14px; display: flex; flex-direction: column; gap: 10px; }
+  .m-card dt { font-size: 10px; letter-spacing: 0.1em; color: var(--muted); text-transform: uppercase; }
+  .m-card dd { font-size: 12px; }
+
+  .m-view[hidden] { display: none; }
+  .m-text { padding: 18px 16px; font-size: 13px; line-height: 1.65; }
+  .m-text p + p { margin-top: 12px; }
+  .m-text .m-clients { color: var(--muted); font-size: 12px; }
+  .m-lang { display: inline-flex; border: 1px solid var(--ink); margin-top: 14px; }
+  .m-lang button { font: inherit; font-size: 11px; padding: 4px 10px; background: none; border: 0; color: var(--ink); cursor: pointer; }
+  .m-lang button.on { background: var(--ink); color: var(--bg); }
+  .m-links { border-top: 1px solid var(--ink); margin: 0 16px; }
+  .m-links a { display: flex; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid var(--ink); text-decoration: none; color: var(--ink); font-size: 13px; }
+  .m-links a span:first-child { font-size: 10px; letter-spacing: 0.1em; color: var(--muted); text-transform: uppercase; align-self: center; }
+  .m-credit { padding: 28px 16px; font-size: 11px; color: var(--muted); }
+  .m-credit a { color: var(--ink); }
+
+  .m-bar {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 50;
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    background: var(--bg); border-top: 1px solid var(--ink);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .m-bar button, .m-bar a {
+    position: relative; padding: 24px 12px 14px; border: 0; border-right: 1px solid var(--ink);
+    background: var(--bg); color: var(--ink); font: inherit; font-size: 12px; font-weight: 500;
+    text-align: left; text-decoration: none; cursor: pointer;
+  }
+  .m-bar > :last-child { border-right: 0; }
+  .m-bar i { position: absolute; top: 9px; right: 9px; width: 7px; height: 7px; background: var(--ink); }
+  .m-bar > :nth-child(2) i { opacity: 0.55; } .m-bar > :nth-child(3) i { opacity: 0.25; }
+  .m-bar > :nth-child(4) i { background: transparent; border: 1px solid var(--ink); }
+  .m-bar .on { background: var(--ink); color: var(--bg); }
+  .m-bar .on i { background: var(--bg); opacity: 1; }
+  .m-bar .cv-arrow { color: #FF6B1F; }
+}
+
+/* ── variant tweaks ── */
+.keyboard { height: 150px; }
+.bio-cell { justify-content: center; }
+.bio-cell p { font-size: 12px; line-height: 1.55; }
+.num.empty .anno, .num.empty .num-big, .num.empty .num-meta { visibility: hidden; }
+
+.num.wide { padding: 12px 14px; gap: 4px; justify-content: space-between; min-height: 84px; }
+.num.wide .num-big { font-size: 22px; letter-spacing: -0.03em; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.num.wide .num-meta { font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.num.wide.on .num-meta { color: var(--bg); opacity: 0.7; }
+.bio-cell { padding: 14px 16px; }
+.bio-cell p { font-size: 15px; line-height: 1.5; }
+
+@media (min-width: 881px) {
+  .frame {
+    display: grid; align-items: start;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0fr); column-gap: 0;
+    transition: grid-template-columns 0.45s cubic-bezier(0.2, 0.7, 0.2, 1), column-gap 0.45s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  .frame.has-info { grid-template-columns: minmax(0, 8fr) minmax(0, 4fr); column-gap: 36px; }
+  .frame:not(.has-info) .project-info { overflow: hidden; visibility: hidden; }
+  .project-info { margin-top: 0; position: sticky; top: 24px; grid-template-columns: 1fr; row-gap: 14px; }
+  .project-info h2 { font-size: clamp(30px, 3vw, 46px); }
+  .info-credits { grid-template-columns: 1fr 1fr; }
+  .project-info h2, .info-credits, .info-desc, .info-side { grid-column: 1 / -1; }
+  .info-desc { max-width: none; }
+  .screen h2 { font-size: clamp(36px, 4.2vw, 68px); }
+  .enc .lbl-name { font-size: 11px; }
+  .num.wide .num-big { font-size: 18px; }
+}
+</style>
+</head>
+<body>
+
+<div class="frame">
+
+  <div class="device">
+    <span class="corner-tr"></span>
+    <span class="corner-bl"></span>
+
+    <div class="grid">
+
+      <!-- Speaker grille (top-left, decorative) -->
+      <div class="cell speaker span-2 row-3"></div>
+
+      <!-- SCREEN — shifted right -->
+      <div class="cell screen span-5 row-3" id="screen">
+        <div>
+          <div class="row row-status">
+            <span><span class="blink">▶</span> now_playing.mov</span>
+            <span id="screen-mode">tape</span>
+          </div>
+          <h2 id="screen-title">SOUND DESIGNER</h2>
+          <div class="row row-meta">
+            <span id="screen-cat">all · 9 works</span>
+            <span id="screen-time"></span>
+          </div>
+        </div>
+        <div class="preview" id="preview" data-mode="video">
+          <!-- AUDIO preview: waveform -->
+          <div class="preview-audio">
+            <div class="waveform" id="wave"></div>
+            <div class="vu">
+              <span>vol ▓▓▓▒░ −6dB</span>
+              <span>48 kHz / 24-bit</span>
+            </div>
+          </div>
+          <!-- VIDEO preview: filmstrip + play triangle -->
+          <div class="preview-video">
+            <div class="filmstrip">
+              <div class="filmstrip-top">
+                <span></span><span></span><span></span><span></span><span></span>
+                <span></span><span></span><span></span><span></span><span></span>
+                <span></span><span></span>
+              </div>
+              <div class="frame-window">
+                <svg class="play-tri" viewBox="0 0 24 24" aria-hidden="true">
+                  <polygon points="6,4 6,20 20,12" fill="currentColor"/>
+                </svg>
+              </div>
+              <div class="filmstrip-bot">
+                <span></span><span></span><span></span><span></span><span></span>
+                <span></span><span></span><span></span><span></span><span></span>
+                <span></span><span></span>
+              </div>
+            </div>
+            <div class="vu">
+              <span id="video-meta-l">1920×1080 · h.264</span>
+              <span id="video-meta-r">24 fps · stereo mix</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- row 1: 4 round colored encoders -->
+      <div class="cell enc enc-1 acc" id="enc-1" data-cat="narrative" onclick="setCategory('narrative', this)">
+        <span class="anno">enc.1</span>
+        <div class="dial-big"></div>
+        <span class="lbl-name">narrative</span>
+        <span class="count-color">3 works</span>
+      </div>
+      <div class="cell enc enc-2" id="enc-2" data-cat="music" onclick="setCategory('music', this)">
+        <span class="anno">enc.2</span>
+        <div class="dial-big"></div>
+        <span class="lbl-name">music</span>
+        <span class="count-color">2 works</span>
+      </div>
+      <div class="cell enc enc-3" id="enc-3" data-cat="installations" onclick="setCategory('installations', this)">
+        <span class="anno">enc.3</span>
+        <div class="dial-big"></div>
+        <span class="lbl-name">install.</span>
+        <span class="count-color">2 works</span>
+      </div>
+      <div class="cell enc enc-4" id="enc-4" data-cat="film" onclick="setCategory('film', this)">
+        <span class="anno">enc.4</span>
+        <div class="dial-big"></div>
+        <span class="lbl-name">film</span>
+        <span class="count-color">2 works</span>
+      </div>
+      <div class="cell row-3 fill-dots" aria-hidden="true"></div>
+
+      <!-- row 2 right side (cols 8-11): shuffle + fill (col 12 taken by tall brand) -->
+      <div class="cell bio-cell span-4 row-2"><p>Konstantin Troitsky — sound designer and audio engineer based near Paris.</p></div>
+
+      <!-- row 3 right side (cols 8-11): decorative fills -->
+
+      <!-- NUMBER SELECTOR ROW (12 cells) -->
+      <div class="cell num wide span-4" data-idx="0" onclick="setIndex(0)"><span class="anno"></span><span class="num-big"></span><span class="num-meta"></span></div>
+      <div class="cell num wide span-4" data-idx="1" onclick="setIndex(1)"><span class="anno"></span><span class="num-big"></span><span class="num-meta"></span></div>
+      <div class="cell num wide span-4" data-idx="2" onclick="setIndex(2)"><span class="anno"></span><span class="num-big"></span><span class="num-meta"></span></div>
+
+      <!-- TRANSPORT (rw/play/stop) + SECTIONS (main/work/about/contact) + CV + MODES -->
+      <div class="cell tr" id="btn-play" onclick="togglePlay()">
+        <span class="glyph">▶</span><span class="micro">play</span>
+      </div>
+      <div class="cell aux span-3" onclick="shuffle(this)">
+        <span class="lbl-md">↻ shuffle</span>
+      </div>
+
+      <div class="cell btn fn t2" onclick="setSection('work', this)">
+        <span class="corner"></span><span class="lbl">work</span>
+      </div>
+      <div class="cell btn fn t3" onclick="setSection('about', this)">
+        <span class="corner"></span><span class="lbl">about</span>
+      </div>
+      <div class="cell btn fn t4" onclick="openContact()">
+        <span class="corner"></span><span class="lbl">contact</span>
+      </div>
+
+      <a class="cell tr fav" id="btn-cv" href="#" target="_blank" rel="noopener" onclick="bumpCv(event, this)">
+        <span class="glyph" id="cv-glyph">↓</span><span class="micro">cv</span>
+      </a>
+
+      <div class="cell btn mode" onclick="setMode('synth', this)">
+        <span class="lbl">synth</span>
+      </div>
+      <div class="cell btn mode" onclick="setMode('drum', this)">
+        <span class="lbl">drum</span>
+      </div>
+      <div class="cell btn mode on" onclick="setMode('pad', this)">
+        <span class="lbl">pad</span>
+      </div>
+      <div class="cell btn mode" onclick="setMode('pluck', this)">
+        <span class="lbl">pluck</span>
+      </div>
+
+      <!-- KEYBOARD: proper piano with overlapping black keys -->
+      <div class="cell keyboard" id="keyboard">
+        <div class="white-keys" id="white-keys"></div>
+        <div class="black-keys" id="black-keys"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ────── PROJECT INFO (below device) ────── -->
+  <section class="project-info" id="info-block">
+    <h2 id="info-title">konstantin troitsky</h2>
+
+    <div class="info-credits">
+      <div class="credit"><span class="anno-k">year</span><span class="val" id="info-year"></span></div>
+      <div class="credit"><span class="anno-k">role</span><span class="val" id="info-role">sound designer · audio engineer</span></div>
+      <div class="credit"><span class="anno-k">context</span><span class="val" id="info-client">audio walks · podcasts · installations · film</span></div>
+      <div class="credit"><span class="anno-k">format</span><span class="val" id="info-dur">EN · FR · RU</span></div>
+    </div>
+
+    <p class="info-desc" id="info-desc">Sound designer and audio engineer based near Paris. I build atmosphere, immersion and story through sound — for audio walks, podcasts, installations and film.</p>
+
+    <div class="info-side">
+      <div id="info-extra" class="info-extra"></div>
+      <span class="k">tools</span>
+      <span id="info-tools">logic pro · reaper · izotope rx · ableton live · op-1</span>
+    </div>
+  </section>
+
+  <!-- ────── CONTACT MODAL ────── -->
+  <div class="modal-overlay" id="contact-modal" onclick="closeContact(event)">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-head">
+        <span class="anno">t4 · contact</span>
+        <button class="modal-close" onclick="closeContact()" aria-label="close">×</button>
+      </div>
+      <h3>say hello</h3>
+      <p class="lead">Audio walks, podcasts, installations, film. In English, French or Russian — remotely or on site across Europe.</p>
+      <form onsubmit="submitContact(event)">
+        <label>name<input type="text" name="name" required></label>
+        <label>email<input type="email" name="email" required></label>
+        <label>project<textarea name="message" rows="4" placeholder="a few lines about what you have in mind"></textarea></label>
+        <button type="submit">send →</button>
+      </form>
+      <div class="modal-foot">
+        <span>hello@konstantintroitsky.studio</span>
+        <span>tg @konstantintroitsky</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ────── MOBILE (variant B: index) ────── -->
+<div class="m-site" id="m-site">
+  <header class="m-head">
+    <span class="m-anno">sound design · near paris</span>
+    <h1>konstantin<br>troitsky</h1>
+    <p>Sound designer and audio engineer based near Paris. I build atmosphere, immersion and story through sound — for audio walks, podcasts, installations and film.</p>
+  </header>
+
+  <section class="m-view" id="m-work"></section>
+
+  <section class="m-view" id="m-about" hidden>
+    <div class="m-text" id="m-about-text"></div>
+  </section>
+
+  <section class="m-view" id="m-contact" hidden>
+    <div class="m-text"><p>Audio walks, podcasts, installations, film. In English, French or Russian — remotely or on site across Europe.</p></div>
+    <div class="m-links">
+      <a href="mailto:hello@konstantintroitsky.studio"><span>email</span><span>hello@konstantintroitsky.studio</span></a>
+      <a href="https://t.me/konstantintroitsky" target="_blank" rel="noopener"><span>telegram</span><span>@konstantintroitsky</span></a>
+    </div>
+  </section>
+
+
+  <nav class="m-bar">
+    <button data-view="work" class="on"><i></i>work</button>
+    <button data-view="about"><i></i>about</button>
+    <button data-view="contact"><i></i>contact</button>
+    <a href="#" id="m-cv" target="_blank" rel="noopener"><i></i>cv <span class="cv-arrow">↓</span></a>
+  </nav>
+</div>
+
+<script>
+// ───────── content (shared by desktop + mobile) ──────────
+const SITE_PROJECTS = [
+    { cat: 'narrative', title: 'Balade sonore à Crouy-sur-Ourcq', screen: 'CROUY', year: '2026', type: 'immersive audio walk',
+      org: 'Mairie de Crouy-sur-Ourcq / Médiévales du Houssoy',
+      desc: ['An immersive audio walk through a medieval village in Seine-et-Marne, guided by the White Lady of local legend across three sites: the church, the market square and the keep. Free and online year-round via QR codes.'],
+      info: [['role', 'concept & script · field recording · organ recording in the church · voice recording, editing & mix · sound design · final mix'],
+             ['co-author', 'Polina Burushina'], ['legend', 'Martine Godé'], ['tools', 'logic pro · izotope rx · oktava mk-012']] },
+    { cat: 'narrative', title: 'Exiles', screen: 'EXILES', year: '2023', type: 'audio documentary',
+      org: 'ENS Louis-Lumière, International Audiodocumentary Summer Program · supported by the French Ministry for Europe and Foreign Affairs',
+      desc: ['A Russian couple rebuilding their life in Paris, told in their own voices.'],
+      info: [['role', 'story research · interviews · direction · script · field recording · editing · mix'],
+             ['accompanied by', 'Frédérique Pressmann'], ['tools', 'reaper · sound devices mixpre · oktava mk-012 · lem']] },
+    { cat: 'narrative', title: 'Madrid — Luis Candelas', screen: 'MADRID', year: '2025', type: 'immersive group audio walk',
+      org: 'Golos Vnutri · EN / ES versions',
+      desc: ['A walk through old Madrid in the footsteps of Luis Candelas, the legendary 19th-century thief, blending documentary research and fiction.',
+             'The key challenge was timing: the English and Spanish versions had to match the same walking pace and arrive at each location together, even though the languages run at different lengths.'],
+      info: [['role', 'sound script · sound design · SFX editing · music supervision · mix for wireless group headphones'], ['tools', 'logic pro · izotope rx']] },
+    { cat: 'music', title: 'Monsters', screen: 'MONSTERS', year: '2020', type: 'music for video', org: 'V-A-C Foundation',
+      desc: ['Original music for the closing film of a V-A-C workshop on the body and movement. Following the curators’ idea of showing the “reverse side”, a specially recorded Queen of the Night aria was cut into reversed samples.',
+             'The techno-leaning pulse works as a counterpoint to the participants’ arrhythmic, writhing movements on screen.'],
+      info: [['role', 'composition · sampling & sound design · mix'], ['tools', 'logic pro']] },
+    { cat: 'music', title: 'FUGA 24', screen: 'FUGA 24', year: '2023', type: 'audio triptych', org: 'TOLK, independent Russian-language media',
+      desc: ['A three-part audio piece marking one year since the start of the war in Ukraine (24 February 2023). The title holds three meanings at once: the fugue as musical form, fuga as flight, and the fugue state — a break from oneself.',
+             'Documentary interviews, media archive and original music are woven together in three movements.'],
+      info: [['role', 'interviews · editing · composition · mix'], ['tools', 'logic pro · izotope rx · teenage engineering op-1']] },
+    { cat: 'installations', title: 'Ecomorf', screen: 'ECOMORF', year: '2021', type: '8-channel audiovisual installation', org: 'Signal residency & festival, Nikola-Lenivets',
+      desc: ['An installation comparing abstract sound and visual forms with images of the natural world. Eight musicians each composed a section of one continuous piece; the visual collective Stain created graphics that react to the sound in real time.',
+             'Each musician delivered stems split by frequency band, which were then mapped across eight speakers to place the sound around the listener. My section opens the installation, built from field recordings, acoustic instruments and electronics.'],
+      info: [['role', 'music & sound design (opening 9 minutes) · technical setup of the 8-channel audio in the space'],
+             ['visuals', 'Stain'], ['curators', 'Anton Mints, Andrey Antonets (OID)'], ['tools', 'zoom h6 · teenage engineering op-1 · ableton live']] },
+    { cat: 'installations', title: 'Synesthetic Space', screen: 'SYNESTHESIA', year: '2025', type: '4-channel audiovisual installation', org: 'Totem, association Beau Geste, Crouy-sur-Ourcq',
+      desc: ['An installation exploring synesthesia. I improvised live with instruments and field recordings while artist Polina Burushina, a strong synesthete, listened with her eyes closed and described the images the sound produced. From the recordings we edited a single piece, and Polina animated her visions to it.',
+             'Shown in a light-sealed black cube of about 1.8 × 1.8 m, with projection, four-channel sound, cushions and incense for full immersion.'],
+      info: [['role', 'concept · live improvisation & sound design · editing · 4-channel spatial mix · technical realisation (cube, projection, sound system)'],
+             ['visuals', 'Polina Burushina'], ['tools', 'logic pro · dearvr · teenage engineering op-1 · soma ether 2 · guitar · field recordings']] },
+    { cat: 'film', title: '2 Million Dollars Story', screen: '2M$ STORY', year: '2021', type: 'short comedy film', org: '',
+      desc: ['The film was shot without any production sound, so the entire soundtrack was built from scratch in post: every line of dialogue re-recorded, every footstep, door and room created anew.'],
+      info: [['role', 'ADR recording & editing · foley · ambiences · SFX · mix'], ['music', 'Arseniy Bobryshev'], ['tools', 'reaper · logic pro']] },
+    { cat: 'film', title: 'Konets kontsov (The End of Ends)', screen: 'THE END', year: '2025', type: 'feature film, drama, 84 min', org: 'dir. Anton Bilzho, Alfiya Khabibullina',
+      desc: ['A group of people flees into the forest to escape the end of the world, each imagining their own way to survive.',
+             'Production sound came from both camera and recorder and needed heavy restoration; for the film’s dreamlike world I built surreal, partly synthesized ambiences rather than literal backgrounds.'],
+      info: [['role', 'post-production sound (second sound editor) · dialogue cleanup & restoration · dialogue editing · foley editing · ambience design'],
+             ['tools', 'logic pro · reaper · izotope rx · teenage engineering op-1 · field recordings']] }
+  ];
+const SITE_ABOUT = {
+    en: ['Konstantin Troitsky is a sound designer and audio engineer based near Paris. His work sits where sound becomes a place: immersive audio walks, narrative podcasts, sound installations, and sound and music for film and video.',
+         'He has created more than fifty audio walks in Russia, Spain and France — binaural, site-specific pieces that turn streets, parks and buildings into both stage and score. He has worked on immersive installations with artists and composers, including Ecomorf, an eight-channel audiovisual installation developed at the Signal residency and shown at Signal festival in Nikola-Lenivets. At ENS Louis-Lumière he wrote, recorded and mixed Exiles, an audio documentary supported by the French Ministry for Europe and Foreign Affairs. For film he has done sound design and post-production on more than ten short films and a feature.',
+         'He works in English, French and Russian, remotely or on site across Europe.',
+         'Clients and partners include V-A-C Foundation, Raiffeisen Bank, Yandex, Volkswagen, Snob and Podcast Factory.'],
+    fr: ['Basé près de Paris, Konstantin Troitsky est sound designer et ingénieur du son. Son travail se situe là où le son devient un lieu : parcours sonores immersifs, podcasts narratifs, installations sonores, son et musique pour le film et la vidéo.',
+         'Il a créé plus de cinquante parcours sonores en Russie, en Espagne et en France — des pièces binaurales conçues in situ, qui font des rues, des parcs et des bâtiments à la fois une scène et une partition. Il a participé à des installations immersives aux côtés d’artistes et de compositeurs, dont Ecomorf, installation audiovisuelle sur huit canaux créée lors de la résidence Signal et présentée au festival Signal à Nikola-Lenivets. À l’ENS Louis-Lumière, il a écrit, enregistré et mixé Exiles, un documentaire sonore soutenu par le ministère de l’Europe et des Affaires étrangères. Pour le cinéma, il a assuré le sound design et la post-production de plus de dix courts métrages et d’un long métrage.',
+         'Il travaille en français, en anglais et en russe, à distance ou sur place en Europe.',
+         'Parmi ses clients et partenaires : V-A-C Foundation, Raiffeisen Bank, Yandex, Volkswagen, Snob, Podcast Factory.']
+  };
+
+// desktop view: projects grouped by encoder category
+const PROJECTS = {narrative: [], music: [], installations: [], film: []};
+SITE_PROJECTS.forEach(p => {
+  const get = k => (p.info.find(([key]) => key === k) || [])[1] || '';
+  PROJECTS[p.cat].push({
+    name: p.title, screen: p.screen, year: p.year, role: get('role'), client: p.org, dur: p.type,
+    tools: get('tools'), credits: p.info.filter(([k]) => k !== 'role' && k !== 'tools'),
+    desc: p.desc.join('\n\n')
+  });
+});
+
+const SECTIONS = {
+  main: {
+    screen_title: 'SOUND DESIGNER',
+    screen_cat:   'all · ' + SITE_PROJECTS.length + ' works',
+    screen_time:  '',
+    title: 'konstantin troitsky',
+    desc: 'Sound designer and audio engineer based near Paris. I build atmosphere, immersion and story through sound — for audio walks, podcasts, installations and film.',
+    role: 'sound designer · audio engineer',
+    client: 'audio walks · podcasts · installations · film',
+    dur: 'EN · FR · RU',
+    tools: 'logic pro · reaper · izotope rx · ableton live · op-1',
+    micro: 'sound design · near paris'
+  },
+  about: {
+    screen_title: 'ABOUT',
+    screen_cat:   'section · about',
+    screen_time:  '',
+    title: 'about',
+    desc: SITE_ABOUT.en.join('\n\n'),
+    role: 'sound designer · audio engineer',
+    dur: 'EN · FR · RU',
+    tools: 'logic pro · reaper · izotope rx · ableton live · op-1',
+    micro: 'sound design · near paris'
+  }
+};
+
+let activeCat = 'narrative';
+let activeIdx = 0;
+let activeSection = 'main';
+let currentTimbre = 'pad';
+const catIdx = {narrative: 0, music: 0, installations: 0, film: 0};
+
+// Navigation history — RW goes back through it
+const navHistory = [];
+function pushHistory() {
+  const state = { section: activeSection, cat: activeCat, idx: activeIdx };
+  // Don't push duplicates
+  const last = navHistory[navHistory.length - 1];
+  if (last && last.section === state.section && last.cat === state.cat && last.idx === state.idx) return;
+  navHistory.push(state);
+  if (navHistory.length > 50) navHistory.shift();
+}
+function goBack() {
+  if (navHistory.length < 2) return;
+  navHistory.pop(); // current state
+  const prev = navHistory[navHistory.length - 1];
+  activeSection = prev.section;
+  activeCat = prev.cat;
+  activeIdx = prev.idx;
+  catIdx[activeCat] = activeIdx;
+  // sync section buttons
+  document.querySelectorAll('.btn.fn').forEach(f => f.classList.remove('on'));
+  const sectionMap = { main: '.btn.fn.t1', work: '.btn.fn.t2', about: '.btn.fn.t3' };
+  const sel = sectionMap[activeSection];
+  if (sel) {
+    const btn = document.querySelector(sel);
+    if (btn) btn.classList.add('on');
+  }
+  render();
+}
+
+// ───────── waveform bars ──────────
+(() => {
+  const w = document.getElementById('wave');
+  for (let i = 0; i < 60; i++) {
+    const b = document.createElement('div');
+    b.className = 'b';
+    b.style.height = (8 + Math.abs(Math.sin(i * 0.4) * 16) + Math.random() * 6) + 'px';
+    w.appendChild(b);
+  }
+})();
+
+// ───────── piano keyboard ──────────
+const WHITE_NOTES = ['C4','D4','E4','F4','G4','A4','B4','C5','D5','E5','F5','G5','A5','B5'];
+// Each black key is positioned over the boundary AFTER white key index N (0-based)
+const BLACK_KEYS = [
+  {note:'C#4', after:0}, {note:'D#4', after:1},
+  {note:'F#4', after:3}, {note:'G#4', after:4}, {note:'A#4', after:5},
+  {note:'C#5', after:7}, {note:'D#5', after:8},
+  {note:'F#5', after:10}, {note:'G#5', after:11}, {note:'A#5', after:12}
+];
+const NOTE_FREQ = (n) => {
+  const map = {C:0,'C#':1,D:2,'D#':3,E:4,F:5,'F#':6,G:7,'G#':8,A:9,'A#':10,B:11};
+  const m = n.match(/([A-G]#?)(\d)/);
+  const semi = map[m[1]] + (parseInt(m[2]) - 4) * 12;
+  return 440 * Math.pow(2, (semi - 9) / 12);
+};(() => {
+  const whiteRow = document.getElementById('white-keys');
+  const blackOverlay = document.getElementById('black-keys');
+  const TOTAL_WHITE = WHITE_NOTES.length; // 14
+  const BLACK_W = 5; // % of total
+
+  WHITE_NOTES.forEach((n) => {
+    const el = document.createElement('div');
+    el.className = 'key w';
+    el.dataset.note = n;
+    const trigger = (ev) => { ev.preventDefault(); playNote(n, el); };
+    el.addEventListener('mousedown', trigger);
+    el.addEventListener('touchstart', trigger, {passive: false});
+    whiteRow.appendChild(el);
+  });
+
+  BLACK_KEYS.forEach(({note, after}) => {
+    const el = document.createElement('div');
+    el.className = 'key b';
+    el.dataset.note = note;
+    // boundary index = after + 1 (the boundary BETWEEN white[after] and white[after+1])
+    const boundary = after + 1;
+    el.style.left = `calc(${boundary} * (100% / ${TOTAL_WHITE}) - ${BLACK_W / 2}%)`;
+    el.style.width = BLACK_W + '%';
+    const trigger = (ev) => { ev.preventDefault(); ev.stopPropagation(); playNote(note, el); };
+    el.addEventListener('mousedown', trigger);
+    el.addEventListener('touchstart', trigger, {passive: false});
+    blackOverlay.appendChild(el);
+  });
+})();
+
+let audioCtx;
+
+const TIMBRES = {
+  synth(t, f) {
+    const osc1 = audioCtx.createOscillator();
+    const osc2 = audioCtx.createOscillator();
+    osc1.type = 'sawtooth'; osc1.frequency.value = f;
+    osc2.type = 'sine';     osc2.frequency.value = f / 2;
+    const g = audioCtx.createGain();
+    const filter = audioCtx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(800, t);
+    filter.frequency.exponentialRampToValueAtTime(2400, t + 0.05);
+    filter.frequency.exponentialRampToValueAtTime(400, t + 0.8);
+    filter.Q.value = 4;
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(0.16, t + 0.008);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.7);
+    osc1.connect(filter); osc2.connect(filter);
+    filter.connect(g); g.connect(audioCtx.destination);
+    osc1.start(t); osc2.start(t);
+    osc1.stop(t + 0.75); osc2.stop(t + 0.75);
+  },
+
+  drum(t, f) {
+    // noise burst (bandpassed) + pitched click
+    const bufSize = Math.floor(audioCtx.sampleRate * 0.25);
+    const buffer = audioCtx.createBuffer(1, bufSize, audioCtx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufSize; i++) data[i] = Math.random() * 2 - 1;
+    const noise = audioCtx.createBufferSource();
+    noise.buffer = buffer;
+    const nFilter = audioCtx.createBiquadFilter();
+    nFilter.type = 'bandpass';
+    nFilter.frequency.value = Math.min(f * 2, 6000);
+    nFilter.Q.value = 1.5;
+    const nGain = audioCtx.createGain();
+    nGain.gain.setValueAtTime(0.22, t);
+    nGain.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+    noise.connect(nFilter); nFilter.connect(nGain); nGain.connect(audioCtx.destination);
+    noise.start(t); noise.stop(t + 0.22);
+
+    const click = audioCtx.createOscillator();
+    click.type = 'sine';
+    click.frequency.setValueAtTime(f * 2, t);
+    click.frequency.exponentialRampToValueAtTime(f * 0.5, t + 0.06);
+    const cGain = audioCtx.createGain();
+    cGain.gain.setValueAtTime(0.3, t);
+    cGain.gain.exponentialRampToValueAtTime(0.001, t + 0.14);
+    click.connect(cGain); cGain.connect(audioCtx.destination);
+    click.start(t); click.stop(t + 0.16);
+  },
+
+  pad(t, f) {
+    // warm triangle with subtle vibrato, soft attack, long release
+    const osc = audioCtx.createOscillator();
+    osc.type = 'triangle'; osc.frequency.value = f;
+    const lfo = audioCtx.createOscillator();
+    lfo.frequency.value = 5.5;
+    const lfoGain = audioCtx.createGain();
+    lfoGain.gain.value = f * 0.006;
+    lfo.connect(lfoGain); lfoGain.connect(osc.frequency);
+    const filter = audioCtx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = 1800;
+    const g = audioCtx.createGain();
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(0.18, t + 0.04);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 1.2);
+    osc.connect(filter); filter.connect(g); g.connect(audioCtx.destination);
+    osc.start(t); lfo.start(t);
+    osc.stop(t + 1.25); lfo.stop(t + 1.25);
+  },
+
+  pluck(t, f) {
+    // short, percussive — sharp attack, quick filter decay, fast amp decay
+    const osc = audioCtx.createOscillator();
+    osc.type = 'triangle'; osc.frequency.value = f;
+    const filter = audioCtx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(Math.min(f * 8, 8000), t);
+    filter.frequency.exponentialRampToValueAtTime(Math.max(f * 0.7, 200), t + 0.35);
+    filter.Q.value = 2;
+    const g = audioCtx.createGain();
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(0.28, t + 0.003);   // very sharp attack
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.45); // fast decay
+    osc.connect(filter); filter.connect(g); g.connect(audioCtx.destination);
+    osc.start(t); osc.stop(t + 0.5);
+  }
+};
+
+function playNote(note, el) {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  const t = audioCtx.currentTime;
+  const f = NOTE_FREQ(note);
+  (TIMBRES[currentTimbre] || TIMBRES.pad)(t, f);
+  if (el) {
+    el.classList.add('playing');
+    setTimeout(() => el.classList.remove('playing'), 200);
+  }
+}
+
+function updatePreview(cat, cur) {
+  const preview = document.getElementById('preview');
+  if (!preview) return;
+  const VIDEO_CATS = new Set(['film']);
+  const isVideo = VIDEO_CATS.has(cat);
+  preview.setAttribute('data-mode', isVideo ? 'video' : 'audio');
+
+  if (isVideo) {
+    const fpsMap = {film: '24 fps'};
+    const resMap = {film: '1920×1080 · h.264'};
+    document.getElementById('video-meta-l').textContent = resMap[cat] || '1920×1080 · h.264';
+    document.getElementById('video-meta-r').textContent = `${fpsMap[cat] || '24 fps'} · stereo mix`;
+  }
+}
+
+
+function labelNums() {
+  const works = activeSection === 'main' ? [] : (PROJECTS[activeCat] || []);
+  document.querySelectorAll('.num').forEach((cell, i) => {
+    const w = works[i];
+    const a = cell.querySelector('.anno'), big = cell.querySelector('.num-big'), meta = cell.querySelector('.num-meta');
+    if (meta) {               // wide cells: number · year, title, type
+      a.textContent = w ? `${String(i + 1).padStart(2, '0')} · ${w.year}` : '';
+      big.textContent = w ? w.name.toLowerCase() : '';
+      meta.textContent = w ? w.dur : '';
+    } else {                  // narrow cells: short title above the number
+      a.textContent = w ? (w.screen || w.name).toLowerCase() : '';
+    }
+    cell.classList.toggle('empty', !w);
+  });
+}
+
+// ───────── core: render state ──────────
+function updateEncoderDials() {
+  const restMap = {narrative: '-40deg', music: '30deg', installations: '-75deg', film: '60deg'};
+  document.querySelectorAll('.enc').forEach(enc => {
+    const cat = enc.dataset.cat;
+    const dial = enc.querySelector('.dial-big');
+    if (cat === activeCat && activeSection === 'work') {
+      const works = PROJECTS[cat];
+      const range = 220, start = -110;
+      const angle = works.length > 1
+        ? (activeIdx / (works.length - 1)) * range + start
+        : 0;
+      dial.style.setProperty('--rot', angle + 'deg');
+    } else {
+      dial.style.setProperty('--rot', restMap[cat] || '0deg');
+    }
+  });
+}
+
+function render() {
+  pushHistory();
+  document.getElementById('info-block').style.visibility = activeSection === 'main' ? 'hidden' : '';
+  document.querySelector('.frame').classList.toggle('has-info', activeSection !== 'main');
+  if (activeSection === 'main' || activeSection === 'about') {
+    renderSectionInfo(activeSection);
+    // still update encoder rest positions
+    updateEncoderDials();
+    // numbers: clear active selection
+    document.querySelectorAll('.num').forEach(c => c.classList.remove('on'));
+    labelNums();
+    return;
+  }
+
+  const works = PROJECTS[activeCat];
+  const cur = works[activeIdx];
+
+  // screen
+  document.getElementById('screen-title').textContent = (cur.screen || cur.name).toUpperCase();
+  document.getElementById('screen-cat').textContent =
+    `${activeCat} · ${(activeIdx + 1).toString().padStart(2,'0')} of ${works.length.toString().padStart(2,'0')}`;
+  document.getElementById('screen-time').textContent = cur.year;
+  updatePreview(activeCat, cur);
+
+  // encoders — active state + rotation
+  document.querySelectorAll('.enc').forEach(e => e.classList.remove('acc'));
+  const enc = document.querySelector(`.enc[data-cat="${activeCat}"]`);
+  if (enc) enc.classList.add('acc');
+  updateEncoderDials();
+
+  // number cells — just update active/empty state, label stays "project"
+  document.querySelectorAll('.num').forEach((cell, i) => {
+    cell.classList.remove('on', 'empty');
+    if (i < works.length) {
+      if (i === activeIdx) cell.classList.add('on');
+    } else {
+      cell.classList.add('empty');
+    }
+  });
+
+  labelNums();
+
+  // info block (below device)
+  document.getElementById('info-title').textContent = cur.name;
+  setCredit('info-year',   cur.year);
+  setCredit('info-role',   cur.role);
+  setCredit('info-client', cur.client);
+  setCredit('info-dur',    cur.dur);
+  document.getElementById('info-desc').textContent = cur.desc;
+  document.getElementById('info-tools').textContent = cur.tools;
+  renderExtra(cur.credits);
+  // micro strip for mobile
+  document.getElementById('info-block').setAttribute(
+    'data-micro',
+    `${activeCat} · ${cur.year}`
+  );
+}
+
+function renderExtra(list) {
+  const box = document.getElementById('info-extra');
+  box.innerHTML = '';
+  (list || []).forEach(([k, v]) => {
+    const kk = document.createElement('span'); kk.className = 'k'; kk.textContent = k;
+    const vv = document.createElement('span'); vv.textContent = v;
+    box.append(kk, vv);
+  });
+}
+
+function setCredit(id, value) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const wrapper = el.closest('.credit');
+  const isEmpty = !value || value === '—' || value === '';
+  if (wrapper) wrapper.style.display = isEmpty ? 'none' : '';
+  if (!isEmpty) el.textContent = value;
+}
+
+function renderSectionInfo(name) {
+  const s = SECTIONS[name];
+  if (!s) return;
+  document.getElementById('screen-title').textContent = s.screen_title;
+  document.getElementById('screen-cat').textContent   = s.screen_cat;
+  document.getElementById('screen-time').textContent  = s.screen_time;
+  // main/about screens — show the waveform (neutral)
+  document.getElementById('preview').setAttribute('data-mode', 'audio');
+  document.getElementById('info-title').textContent = s.title;
+  setCredit('info-year',   s.year);
+  setCredit('info-role',   s.role);
+  setCredit('info-client', s.client);
+  setCredit('info-dur',    s.dur);
+  document.getElementById('info-desc').textContent  = s.desc;
+  document.getElementById('info-tools').textContent = s.tools;
+  renderExtra([]);
+  document.getElementById('info-block').setAttribute('data-micro', s.micro || s.year || '—');
+  // encoders — deactivate
+  document.querySelectorAll('.enc').forEach(e => e.classList.remove('acc'));
+}
+
+// ───────── interactions ──────────
+function jumpToWork() {
+  activeSection = 'work';
+  document.querySelectorAll('.btn.fn').forEach(f => f.classList.remove('on'));
+  const t2 = document.querySelector('.btn.fn.t2');
+  if (t2) t2.classList.add('on');
+}
+
+function setCategory(cat, el) {
+  if (!(cat in PROJECTS)) return;
+  if (cat === activeCat && activeSection === 'work') {
+    // Already active — advance to next work in this category
+    catIdx[cat] = (catIdx[cat] + 1) % PROJECTS[cat].length;
+  } else {
+    jumpToWork();
+    activeCat = cat;
+    // Keep catIdx[cat] — each encoder remembers its position
+  }
+  activeIdx = catIdx[cat];
+  render();
+}
+
+function setIndex(idx) {
+  const works = PROJECTS[activeCat];
+  if (idx < 0 || idx >= works.length) return;
+  if (activeSection !== 'work') jumpToWork();
+  catIdx[activeCat] = idx;
+  activeIdx = idx;
+  render();
+}
+
+function shuffle(el) {
+  jumpToWork();
+  const cats = Object.keys(PROJECTS);
+  let newCat, newIdx, tries = 0;
+  do {
+    newCat = cats[Math.floor(Math.random() * cats.length)];
+    newIdx = Math.floor(Math.random() * PROJECTS[newCat].length);
+    tries++;
+  } while (newCat === activeCat && newIdx === activeIdx && tries < 8);
+  activeCat = newCat;
+  activeIdx = newIdx;
+  catIdx[newCat] = newIdx;
+  render();
+  if (el) {
+    el.classList.remove('flashing');
+    void el.offsetWidth;
+    el.classList.add('flashing');
+  }
+}
+
+// transport
+let playing = false;
+function togglePlay() {
+  playing = !playing;
+  const screen = document.getElementById('screen');
+  const btn = document.getElementById('btn-play');
+  if (playing) {
+    screen.classList.add('playing');
+    btn.classList.add('on');
+    btn.querySelector('.glyph').textContent = '▍▍';
+    animateBars();
+  } else {
+    screen.classList.remove('playing');
+    btn.classList.remove('on');
+    btn.querySelector('.glyph').textContent = '▶';
+  }
+}
+
+function bumpCv(ev, el) {
+  // animation feedback; href = '#' is a placeholder until a real CV URL is set
+  if (el.getAttribute('href') === '#') ev.preventDefault();
+  el.classList.add('pop');
+  setTimeout(() => el.classList.remove('pop'), 220);
+}
+
+function trBtn(kind) {
+  if (kind === 'stop') {
+    playing = false;
+    document.getElementById('screen').classList.remove('playing');
+    const p = document.getElementById('btn-play');
+    p.classList.remove('on');
+    p.querySelector('.glyph').textContent = '▶';
+  } else if (kind === 'rw') {
+    goBack();
+  }
+}
+
+let barIvl = null;
+function animateBars() {
+  if (barIvl) return;
+  const bars = document.querySelectorAll('#wave .b');
+  barIvl = setInterval(() => {
+    if (!playing) { clearInterval(barIvl); barIvl = null; return; }
+    bars.forEach((b, i) => {
+      const h = 6 + Math.abs(Math.sin(Date.now() / 200 + i * 0.5) * 18) + Math.random() * 4;
+      b.style.height = h + 'px';
+    });
+  }, 80);
+}
+
+// sections / modes
+function setSection(id, el) {
+  document.querySelectorAll('.btn.fn').forEach(f => f.classList.remove('on'));
+  el.classList.add('on');
+  activeSection = id;
+  document.getElementById('screen-mode').textContent = currentTimbre;
+  render();
+}
+function setMode(id, el) {
+  document.querySelectorAll('.btn.mode').forEach(b => b.classList.remove('on'));
+  el.classList.add('on');
+  currentTimbre = id;
+  document.getElementById('screen-mode').textContent = id;
+}
+
+// contact modal
+function openContact() {
+  document.getElementById('contact-modal').classList.add('open');
+}
+function closeContact(ev) {
+  // Overlay click: only close if user clicked the overlay backdrop (not modal content)
+  if (ev && ev.currentTarget && ev.currentTarget.id === 'contact-modal' && ev.target !== ev.currentTarget) {
+    return;
+  }
+  document.getElementById('contact-modal').classList.remove('open');
+}
+function submitContact(ev) {
+  ev.preventDefault();
+  const btn = ev.target.querySelector('button[type="submit"]');
+  btn.textContent = 'sent ✓';
+  btn.disabled = true;
+  setTimeout(() => {
+    closeContact();
+    btn.textContent = 'send →';
+    btn.disabled = false;
+    ev.target.reset();
+  }, 1400);
+}
+// ESC to close
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeContact();
+});
+
+// keyboard stretches so the synth fills the screen height (desktop only)
+function fitKeyboard() {
+  const kb = document.getElementById('keyboard');
+  if (!kb) return;
+  if (window.innerWidth <= 880) { kb.style.height = ''; return; }
+  kb.style.height = '150px';
+  const top = kb.getBoundingClientRect().top + window.scrollY;
+  const free = window.innerHeight - top - 24;           // 24 = page padding
+  kb.style.height = Math.max(150, Math.min(free, 520)) + 'px';
+}
+window.addEventListener('resize', fitKeyboard);
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitKeyboard);
+
+// ───────── init ──────────
+render();
+fitKeyboard();
+
+// ═════ MOBILE — variant B ═════
+(() => {
+  const M_CATS = ['narrative', 'music', 'installations', 'film'];
+  const M_PROJECTS = SITE_PROJECTS;
+  const M_ABOUT = SITE_ABOUT;
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const n2 = i => String(i + 1).padStart(2, '0');
+
+  // work index
+  document.getElementById('m-work').innerHTML = M_CATS.map(cat => `
+    <div class="m-grp"><span class="m-dot ${cat}"></span><span class="m-anno">${cat}</span></div>
+    ${M_PROJECTS.map((p, i) => p.cat !== cat ? '' : `
+      <div class="m-item">
+        <button class="m-row" aria-expanded="false">
+          <span>${n2(i)}</span><span class="t">${esc(p.title)}</span><span class="y">${p.year}</span>
+          <span class="s">${esc(p.type)}</span>
+        </button>
+        <div class="m-card">
+          ${p.org ? `<div class="m-org">${esc(p.org)}</div>` : ''}
+          ${p.desc.map(t => `<p>${esc(t)}</p>`).join('')}
+          <dl>${p.info.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join('')}</dl>
+        </div>
+      </div>`).join('')}`).join('');
+
+  document.querySelectorAll('#m-work .m-row').forEach(b => b.addEventListener('click', () => {
+    const it = b.parentElement, open = !it.classList.contains('open');
+    document.querySelectorAll('#m-work .m-item.open').forEach(x => { x.classList.remove('open'); x.firstElementChild.setAttribute('aria-expanded', 'false'); });
+    if (open) {
+      it.classList.add('open'); b.setAttribute('aria-expanded', 'true');
+      b.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }));
+
+  // about
+  let mLang = 'en';
+  function drawAbout() {
+    const paras = M_ABOUT[mLang];
+    document.getElementById('m-about-text').innerHTML =
+      paras.slice(0, -1).map(t => `<p>${esc(t)}</p>`).join('') +
+      `<p class="m-clients">${esc(paras[paras.length - 1])}</p>
+       <div class="m-lang"><button data-l="en" class="${mLang === 'en' ? 'on' : ''}">EN</button><button data-l="fr" class="${mLang === 'fr' ? 'on' : ''}">FR</button></div>`;
+  }
+  drawAbout();
+  document.getElementById('m-about-text').addEventListener('click', e => {
+    const b = e.target.closest('[data-l]');
+    if (b) { mLang = b.dataset.l; drawAbout(); }
+  });
+
+  // tab bar
+  document.querySelectorAll('.m-bar [data-view]').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('.m-bar [data-view]').forEach(x => x.classList.toggle('on', x === b));
+    document.querySelectorAll('.m-view').forEach(v => v.hidden = v.id !== 'm-' + b.dataset.view);
+    window.scrollTo({ top: 0 });
+  }));
+  // cv: '#' is a placeholder until the real PDF link is set
+  document.getElementById('m-cv').addEventListener('click', e => {
+    if (e.currentTarget.getAttribute('href') === '#') e.preventDefault();
+  });
+})();
+</script>
+</body>
+</html>
