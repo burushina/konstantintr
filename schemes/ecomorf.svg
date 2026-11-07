@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="960" viewBox="0 0 1200 960" font-family="IBM Plex Mono, Menlo, monospace">
+<rect width="1200" height="960" fill="#F8F7F3"/>
+<defs><pattern id="hatch" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="10" stroke="#111111" stroke-width="2"/></pattern></defs>
+<text x="48" y="64" font-size="28" font-weight="700" fill="#111111">ECOMORF</text>
+<text x="48" y="96" font-size="16" fill="#777777">8-channel audiovisual installation · top view · Signal, Nikola-Lenivets, 2021</text>
+<rect x="330" y="170" width="540" height="22" fill="url(#hatch)" stroke="#111111" stroke-width="2.5"/>
+<text x="600.0" y="160.0" font-size="15" fill="#111111" text-anchor="middle" font-weight="400">BARN WALL — projection (visuals: Stain)</text>
+<path d="M 743.4 274.3 A 250 300 0 1 1 456.6 274.3" fill="none" stroke="#777777" stroke-width="1.5" stroke-dasharray="3 7"/>
+<g transform="translate(743.4,274.3) rotate(120.3)"><rect x="-17.0" y="-17.0" width="34" height="34" fill="#F8F7F3" stroke="#111111" stroke-width="2.5"/><circle cx="0" cy="0" r="9.520000000000001" fill="none" stroke="#111111" stroke-width="2"/><path d="M 17.0 -10.2 L 27.0 -15.3 M 17.0 10.2 L 27.0 15.3" stroke="#111111" stroke-width="1.5"/></g>
+<text x="769.8" y="247.5" font-size="18" fill="#111111" text-anchor="middle" font-weight="700">1</text>
+<g transform="translate(843.0,449.6) rotate(163.8)"><rect x="-17.0" y="-17.0" width="34" height="34" fill="#F8F7F3" stroke="#111111" stroke-width="2.5"/><circle cx="0" cy="0" r="9.520000000000001" fill="none" stroke="#111111" stroke-width="2"/><path d="M 17.0 -10.2 L 27.0 -15.3 M 17.0 10.2 L 27.0 15.3" stroke="#111111" stroke-width="1.5"/></g>
+<text x="887.7" y="446.2" font-size="18" fill="#111111" text-anchor="middle" font-weight="700">2</text>
+<g transform="translate(821.0,660.2) rotate(-147.6)"><rect x="-17.0" y="-17.0" width="34" height="34" fill="#F8F7F3" stroke="#111111" stroke-width="2.5"/><circle cx="0" cy="0" r="9.520000000000001" fill="none" stroke="#111111" stroke-width="2"/><path d="M 17.0 -10.2 L 27.0 -15.3 M 17.0 10.2 L 27.0 15.3" stroke="#111111" stroke-width="1.5"/></g>
+<text x="861.7" y="684.9" font-size="18" fill="#111111" text-anchor="middle" font-weight="700">3</text>
+<g transform="translate(688.4,800.6) rotate(-107.5)"><rect x="-17.0" y="-17.0" width="34" height="34" fill="#F8F7F3" stroke="#111111" stroke-width="2.5"/><circle cx="0" cy="0" r="9.520000000000001" fill="none" stroke="#111111" stroke-width="2"/><path d="M 17.0 -10.2 L 27.0 -15.3 M 17.0 10.2 L 27.0 15.3" stroke="#111111" stroke-width="1.5"/></g>
+<text x="704.7" y="844.0" font-size="18" fill="#111111" text-anchor="middle" font-weight="700">4</text>
+<g transform="translate(511.6,800.6) rotate(-72.5)"><rect x="-17.0" y="-17.0" width="34" height="34" fill="#F8F7F3" stroke="#111111" stroke-width="2.5"/><circle cx="0" cy="0" r="9.520000000000001" fill="none" stroke="#111111" stroke-width="2"/><path d="M 17.0 -10.2 L 27.0 -15.3 M 17.0 10.2 L 27.0 15.3" stroke="#111111" stroke-width="1.5"/></g>
+<text x="495.3" y="844.0" font-size="18" fill="#111111" text-anchor="middle" font-weight="700">5</text>
+<g transform="translate(379.0,660.2) rotate(-32.4)"><rect x="-17.0" y="-17.0" width="34" height="34" fill="#F8F7F3" stroke="#111111" stroke-width="2.5"/><circle cx="0" cy="0" r="9.520000000000001" fill="none" stroke="#111111" stroke-width="2"/><path d="M 17.0 -10.2 L 27.0 -15.3 M 17.0 10.2 L 27.0 15.3" stroke="#111111" stroke-width="1.5"/></g>
+<text x="338.3" y="684.9" font-size="18" fill="#111111" text-anchor="middle" font-weight="700">6</text>
+<g transform="translate(357.0,449.6) rotate(16.2)"><rect x="-17.0" y="-17.0" width="34" height="34" fill="#F8F7F3" stroke="#111111" stroke-width="2.5"/><circle cx="0" cy="0" r="9.520000000000001" fill="none" stroke="#111111" stroke-width="2"/><path d="M 17.0 -10.2 L 27.0 -15.3 M 17.0 10.2 L 27.0 15.3" stroke="#111111" stroke-width="1.5"/></g>
+<text x="312.3" y="446.2" font-size="18" fill="#111111" text-anchor="middle" font-weight="700">7</text>
+<g transform="translate(456.6,274.3) rotate(59.7)"><rect x="-17.0" y="-17.0" width="34" height="34" fill="#F8F7F3" stroke="#111111" stroke-width="2.5"/><circle cx="0" cy="0" r="9.520000000000001" fill="none" stroke="#111111" stroke-width="2"/><path d="M 17.0 -10.2 L 27.0 -15.3 M 17.0 10.2 L 27.0 15.3" stroke="#111111" stroke-width="1.5"/></g>
+<text x="430.2" y="247.5" font-size="18" fill="#111111" text-anchor="middle" font-weight="700">8</text>
+<circle cx="540.0" cy="480.0" r="7" fill="#111111"/>
+<circle cx="580.0" cy="530.0" r="7" fill="#111111"/>
+<circle cx="630.0" cy="460.0" r="7" fill="#111111"/>
+<circle cx="670.0" cy="520.0" r="7" fill="#111111"/>
+<circle cx="600.0" cy="590.0" r="7" fill="#111111"/>
+<circle cx="520.0" cy="570.0" r="7" fill="#111111"/>
+<circle cx="650.0" cy="600.0" r="7" fill="#111111"/>
+<circle cx="570.0" cy="410.0" r="7" fill="#111111"/>
+<circle cx="690.0" cy="430.0" r="7" fill="#111111"/>
+<text x="600.0" y="680.0" font-size="15" fill="#777777" text-anchor="middle" font-weight="400">audience, facing the wall</text>
+<g transform="translate(48,900)"><g transform="translate(17.0,0.0) rotate(0.0)"><rect x="-13.0" y="-13.0" width="26" height="26" fill="#F8F7F3" stroke="#111111" stroke-width="2.5"/><circle cx="0" cy="0" r="7.280000000000001" fill="none" stroke="#111111" stroke-width="2"/><path d="M 13.0 -7.8 L 23.0 -11.700000000000001 M 13.0 7.8 L 23.0 11.700000000000001" stroke="#111111" stroke-width="1.5"/></g></g>
+<text x="96.0" y="906.0" font-size="15" fill="#111111" text-anchor="start" font-weight="400">speaker · channel no.</text>
+<circle cx="380.0" cy="900.0" r="7" fill="#111111"/>
+<text x="396.0" y="906.0" font-size="15" fill="#111111" text-anchor="start" font-weight="400">listener</text>
+<text x="1152.0" y="906.0" font-size="15" fill="#777777" text-anchor="end" font-weight="400">forest, open air</text>
+</svg>

@@ -823,6 +823,11 @@ body {
 }
 .info-side .k { text-transform: uppercase; }
 .info-desc { white-space: pre-line; }
+.info-scheme { grid-column: 1 / -1; display: block; border: 1px solid var(--ink); background: #F8F7F3; }
+.info-scheme[hidden] { display: none; }
+.info-scheme img { display: block; width: 100%; height: auto; }
+.m-card .m-scheme { display: block; margin-top: 14px; border: 1px solid var(--ink); }
+.m-card .m-scheme img { display: block; width: 100%; height: auto; }
 .info-extra { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
 .info-extra:empty { display: none; }
 .info-side span:not(.k) { color: var(--ink); font-size: 11px; }
@@ -1092,6 +1097,8 @@ body {
 
     <p class="info-desc" id="info-desc">Sound designer and audio engineer based near Paris. I build atmosphere, immersion and story through sound — for audio walks, podcasts, installations and film.</p>
 
+    <a class="info-scheme" id="info-scheme" target="_blank" rel="noopener" hidden><img alt=""></a>
+
     <div class="info-side">
       <div id="info-extra" class="info-extra"></div>
       <span class="k">tools</span>
@@ -1186,11 +1193,13 @@ const SITE_PROJECTS = [
     { cat: 'installations', title: 'Ecomorf', screen: 'ECOMORF', year: '2021', type: '8-channel audiovisual installation', org: 'Signal residency & festival, Nikola-Lenivets',
       desc: ['An installation comparing abstract sound and visual forms with images of the natural world. Eight musicians each composed a section of one continuous piece; the visual collective Stain created graphics that react to the sound in real time.',
              'Each musician delivered stems split by frequency band, which were then mapped across eight speakers to place the sound around the listener. My section opens the installation, built from field recordings, acoustic instruments and electronics.'],
+      scheme: 'schemes/ecomorf.svg',
       info: [['role', 'music & sound design (opening 9 minutes) · technical setup of the 8-channel audio in the space'],
              ['visuals', 'Stain'], ['curators', 'Anton Mints, Andrey Antonets (OID)'], ['tools', 'zoom h6 · teenage engineering op-1 · ableton live']] },
     { cat: 'installations', title: 'Synesthetic Space', screen: 'SYNESTHESIA', year: '2025', type: '4-channel audiovisual installation', org: 'Totem, association Beau Geste, Crouy-sur-Ourcq',
       desc: ['An installation exploring synesthesia. I improvised live with instruments and field recordings while artist Polina Burushina, a strong synesthete, listened with her eyes closed and described the images the sound produced. From the recordings we edited a single piece, and Polina animated her visions to it.',
              'Shown in a light-sealed black cube of about 1.8 × 1.8 m, with projection, four-channel sound, cushions and incense for full immersion.'],
+      scheme: 'schemes/synesthetic-space.svg',
       info: [['role', 'concept · live improvisation & sound design · editing · 4-channel spatial mix · technical realisation (cube, projection, sound system)'],
              ['visuals', 'Polina Burushina'], ['tools', 'logic pro · dearvr · teenage engineering op-1 · soma ether 2 · guitar · field recordings']] },
     { cat: 'film', title: 'The Tale of the Three Brothers', screen: '3 BROTHERS', year: '2025', type: 'sound redesign',
@@ -1230,7 +1239,7 @@ SITE_PROJECTS.forEach(p => {
   PROJECTS[p.cat].push({
     name: p.title, screen: p.screen, year: p.year, role: get('role'), client: p.org, dur: p.type,
     tools: get('tools'), credits: p.info.filter(([k]) => k !== 'role' && k !== 'tools'),
-    desc: p.desc.join('\n\n')
+    desc: p.desc.join('\n\n'), scheme: p.scheme || ''
   });
 });
 
@@ -1471,6 +1480,13 @@ function updatePreview(cat, cur) {
 }
 
 
+function setScheme(src, name) {
+  const a = document.getElementById('info-scheme');
+  if (!src) { a.hidden = true; a.removeAttribute('href'); return; }
+  a.hidden = false; a.href = src;
+  const img = a.querySelector('img'); img.src = src; img.alt = (name || '') + ' — installation scheme';
+}
+
 function labelNums() {
   const works = activeSection === 'main' ? [] : (PROJECTS[activeCat] || []);
   document.querySelectorAll('.num').forEach((cell, i) => {
@@ -1555,6 +1571,7 @@ function render() {
   setCredit('info-client', cur.client);
   setCredit('info-dur',    cur.dur);
   document.getElementById('info-desc').textContent = cur.desc;
+  setScheme(cur.scheme, cur.name);
   document.getElementById('info-tools').textContent = cur.tools;
   renderExtra(cur.credits);
   // micro strip for mobile
@@ -1597,6 +1614,7 @@ function renderSectionInfo(name) {
   setCredit('info-client', s.client);
   setCredit('info-dur',    s.dur);
   document.getElementById('info-desc').textContent  = s.desc;
+  setScheme('');
   document.getElementById('info-tools').textContent = s.tools;
   renderExtra([]);
   document.getElementById('info-block').setAttribute('data-micro', s.micro || s.year || '—');
@@ -1785,6 +1803,7 @@ fitKeyboard();
         <div class="m-card">
           ${p.org ? `<div class="m-org">${esc(p.org)}</div>` : ''}
           ${p.desc.map(t => `<p>${esc(t)}</p>`).join('')}
+          ${p.scheme ? `<a class="m-scheme" href="${p.scheme}" target="_blank" rel="noopener"><img src="${p.scheme}" alt="${esc(p.title)} — installation scheme" loading="lazy"></a>` : ''}
           <dl>${p.info.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join('')}</dl>
         </div>
       </div>`).join('')}`).join('');
