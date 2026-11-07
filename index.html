@@ -446,6 +446,7 @@ body {
 .info-menu > *:last-child { border-bottom: none; }
 .info-menu > *:hover { background: var(--ink); color: var(--bg); }
 .info-menu .cv-arrow { color: #FF6B1F; }
+.btn.mode { align-items: center; }
 .btn {
   cursor: pointer;
   user-select: none;
@@ -1132,7 +1133,7 @@ body {
       <div class="cell num wide span-3" data-idx="3" onclick="setIndex(3)"><span class="anno"></span><span class="num-big"></span><span class="num-meta"></span></div>
 
       <!-- CONTROL ROW: sound modes only -->
-      <div class="cell ctl toy fill-dots span-4" aria-hidden="true"></div>
+      <div class="cell ctl toy fill-dots span-2" aria-hidden="true"></div>
 
       <div class="cell ctl toy btn mode span-2" onclick="setMode('synth', this)">
         <span class="lbl">synth</span>
@@ -1146,6 +1147,7 @@ body {
       <div class="cell ctl toy btn mode span-2" onclick="setMode('pluck', this)">
         <span class="lbl">pluck</span>
       </div>
+      <div class="cell ctl toy fill-dots span-2" aria-hidden="true"></div>
 
 
       <!-- PROJECT INFO — opens inside the synth, between controls and keyboard -->
