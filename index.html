@@ -426,7 +426,9 @@ body {
 
 /* Buttons (function + mode) */
 /* info button + small mechanical drop-down */
-.info-btn { overflow: visible; z-index: 5; }
+.info-btn { overflow: visible; z-index: 5; justify-content: flex-end; }
+.info-btn .lbl { font-size: 13px; }
+.info-menu { right: -1px; left: auto; }
 .info-btn .corner { background: transparent; border: 1px solid var(--ink); }
 .info-btn.on .corner { border-color: var(--bg); }
 .info-menu {
@@ -1003,7 +1005,7 @@ body {
   .ctl > * { transition: opacity 0.2s, font-size 0.3s; }
   .frame.has-info:not(.closing) .grid { grid-auto-rows: minmax(0, auto); }
   .frame.has-info:not(.closing) .cell:not(.ctl) { min-height: 60px; }
-  .frame.has-info:not(.closing) .ctl { height: 26px; padding-top: 0; padding-bottom: 0; flex-direction: row; align-items: center; gap: 6px; }
+  .frame.has-info:not(.closing) .ctl { height: 0; padding-top: 0; padding-bottom: 0; border-bottom-width: 0; overflow: hidden; }
   .frame.has-info:not(.closing) .ctl .corner { opacity: 0; }
   .frame.has-info:not(.closing) .ctl .lbl,
   .frame.has-info:not(.closing) .ctl .micro { font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; }
@@ -1111,7 +1113,15 @@ body {
       <div class="cell row-3 fill-dots" aria-hidden="true"></div>
 
       <!-- row 2 right side (cols 8-11): shuffle + fill (col 12 taken by tall brand) -->
-      <div class="cell bio-cell span-4 row-2"><p>Konstantin Troitsky — sound designer and audio engineer based near Paris.</p></div>
+      <div class="cell bio-cell span-3 row-2"><p>Konstantin Troitsky — sound designer and audio engineer based near Paris.</p></div>
+      <div class="cell btn fn t3 info-btn row-2" id="info-btn" onclick="toggleMenu(event)" aria-haspopup="true" aria-expanded="false">
+        <span class="corner"></span><span class="lbl">info</span>
+        <div class="info-menu" id="info-menu" role="menu">
+          <button type="button" role="menuitem" onclick="menuGo(event, 'about')">about</button>
+          <button type="button" role="menuitem" onclick="menuGo(event, 'contact')">contact</button>
+          <a role="menuitem" id="btn-cv" href="#" target="_blank" rel="noopener" onclick="menuGo(event, 'cv', this)">cv <span class="cv-arrow">↓</span></a>
+        </div>
+      </div>
 
       <!-- row 3 right side (cols 8-11): decorative fills -->
 
@@ -1121,16 +1131,8 @@ body {
       <div class="cell num wide span-3" data-idx="2" onclick="setIndex(2)"><span class="anno"></span><span class="num-big"></span><span class="num-meta"></span></div>
       <div class="cell num wide span-3" data-idx="3" onclick="setIndex(3)"><span class="anno"></span><span class="num-big"></span><span class="num-meta"></span></div>
 
-      <!-- CONTROL ROW: one small menu button (about / contact / cv) + sound modes -->
-      <div class="cell ctl btn fn t3 info-btn" id="info-btn" onclick="toggleMenu(event)" aria-haspopup="true" aria-expanded="false">
-        <span class="corner"></span><span class="lbl">info</span>
-        <div class="info-menu" id="info-menu" role="menu">
-          <button type="button" role="menuitem" onclick="menuGo(event, 'about')">about</button>
-          <button type="button" role="menuitem" onclick="menuGo(event, 'contact')">contact</button>
-          <a role="menuitem" id="btn-cv" href="#" target="_blank" rel="noopener" onclick="menuGo(event, 'cv', this)">cv <span class="cv-arrow">↓</span></a>
-        </div>
-      </div>
-      <div class="cell ctl toy fill-dots span-3" aria-hidden="true"></div>
+      <!-- CONTROL ROW: sound modes only -->
+      <div class="cell ctl toy fill-dots span-4" aria-hidden="true"></div>
 
       <div class="cell ctl toy btn mode span-2" onclick="setMode('synth', this)">
         <span class="lbl">synth</span>
