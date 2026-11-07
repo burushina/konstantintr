@@ -1164,7 +1164,7 @@ body {
 <script>
 // ───────── content (shared by desktop + mobile) ──────────
 const SITE_PROJECTS = [
-    { cat: 'narrative', title: 'Balade sonore à Crouy-sur-Ourcq', screen: 'CROUY', year: '2026', type: 'immersive audio walk',
+    { cat: 'narrative', slug: 'balade-sonore', title: 'Balade sonore à Crouy-sur-Ourcq', screen: 'CROUY', year: '2026', type: 'immersive audio walk',
       org: 'Mairie de Crouy-sur-Ourcq / Médiévales du Houssoy',
       desc: ['An immersive audio walk through a medieval village in Seine-et-Marne, guided by the White Lady of local legend across three sites: the church, the market square and the keep. The voices belong to local residents, recorded on location. Free and online year-round via QR codes.'],
       info: [['role', 'concept & script · field recording · organ recording in the church · voice recording, editing & mix · sound design · final mix'],
@@ -1174,7 +1174,7 @@ const SITE_PROJECTS = [
       desc: ['A Russian couple rebuilding their life in Paris, told in their own voices.'],
       info: [['role', 'story research · interviews · direction · script · field recording · editing · mix'],
              ['accompanied by', 'Frédérique Pressmann'], ['tools', 'reaper · sound devices mixpre · oktava mk-012 · lem']] },
-    { cat: 'narrative', title: 'Madrid — Luis Candelas', screen: 'MADRID', year: '2025', type: 'immersive group audio walk',
+    { cat: 'narrative', slug: 'madrid', title: 'Madrid — Luis Candelas', screen: 'MADRID', year: '2025', type: 'immersive group audio walk',
       org: 'Golos Vnutri · EN / ES versions',
       desc: ['A walk through old Madrid in the footsteps of Luis Candelas, the legendary 19th-century thief, blending documentary research and fiction.',
              'The key challenge was timing: the English and Spanish versions had to match the same walking pace and arrive at each location together, even though the languages run at different lengths.'],
@@ -1202,20 +1202,20 @@ const SITE_PROJECTS = [
       scheme: 'schemes/synesthetic-space.svg',
       info: [['role', 'concept · live improvisation & sound design · editing · 4-channel spatial mix · technical realisation (cube, projection, sound system)'],
              ['visuals', 'Polina Burushina'], ['tools', 'logic pro · dearvr · teenage engineering op-1 · soma ether 2 · guitar · field recordings']] },
-    { cat: 'film', title: 'The Tale of the Three Brothers', screen: '3 BROTHERS', year: '2025', type: 'sound redesign',
+    { cat: 'film', slug: 'three-brothers', title: 'The Tale of the Three Brothers', screen: '3 BROTHERS', year: '2025', type: 'sound redesign',
       org: 'a reimagining of the original sound for the animated sequence in Harry Potter and the Deathly Hallows: Part 1',
       desc: ['The original sequence relies on voice-over and minimal sound design. With the narration removed, the story is carried by sound alone. Death’s movements are designed from my own recorded and processed breath and voice.',
              'The encounter with Death is a dense, enveloping ambience; the brothers’ stories shift to a sparser, more realistic track with focused accents — the theft of the wand, a melodic theme for the loss of the beloved.'],
       info: [['role', 'sound design · voice & breath recording · foley · synthesis · sound editing · mix'],
              ['tools', 'logic pro · teenage engineering op-1 · zoom h6 · oktava mk-012']] },
-    { cat: 'film', title: 'Day Off (Vykhodnoy)', screen: 'DAY OFF', year: '2025', type: 'short film, 19 min', org: 'dir. Olesya Smolkova',
+    { cat: 'film', slug: 'day-off', title: 'Day Off (Vykhodnoy)', screen: 'DAY OFF', year: '2025', type: 'short film, 19 min', org: 'dir. Olesya Smolkova',
       desc: ['Vera, a mother of many children, goes with her husband and three kids to a friend’s country house and tries to “relax” there.',
              'The main challenge was the dialogue mix: several lavalier mics running at once, one on each character, plus the boom, blended into one natural, intelligible scene.'],
       info: [['role', 'post-production sound · dialogue editing & mix · sound design · music for the end credits']] },
-    { cat: 'film', title: '2 Million Dollars Story', screen: '2M$ STORY', year: '2021', type: 'short comedy film', org: '',
+    { cat: 'film', slug: '2-million-dollars', title: '2 Million Dollars Story', screen: '2M$ STORY', year: '2021', type: 'short comedy film', org: '',
       desc: ['The film was shot without any production sound, so the entire soundtrack was built from scratch in post: every line of dialogue re-recorded, every footstep, door and room created anew.'],
       info: [['role', 'ADR recording & editing · foley · ambiences · SFX · mix'], ['music', 'Arseniy Bobryshev'], ['tools', 'reaper · logic pro']] },
-    { cat: 'film', title: 'Konets kontsov (The End of Ends)', screen: 'THE END', year: '2025', type: 'feature film, drama, 84 min', org: 'dir. Anton Bilzho, Alfiya Khabibullina',
+    { cat: 'film', slug: 'the-end-of-ends', title: 'Konets kontsov (The End of Ends)', screen: 'THE END', year: '2025', type: 'feature film, drama, 84 min', org: 'dir. Anton Bilzho, Alfiya Khabibullina',
       desc: ['A group of people flees into the forest to escape the end of the world, each imagining their own way to survive.',
              'Production sound came from both camera and recorder and needed heavy restoration; for the film’s dreamlike world I built surreal, partly synthesized ambiences rather than literal backgrounds.'],
       info: [['role', 'post-production sound (second sound editor) · dialogue cleanup & restoration · dialogue editing · foley editing · ambience design'],
@@ -1234,12 +1234,20 @@ const SITE_ABOUT = {
 
 // desktop view: projects grouped by encoder category
 const PROJECTS = {narrative: [], music: [], installations: [], film: []};
+// each project gets its own link: troitskysound.com/#synesthetic-space
+const slugify = t => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+  .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+SITE_PROJECTS.forEach(p => { p.slug = p.slug || slugify(p.title); });
+function setHash(h) {
+  const url = location.pathname + location.search + (h ? '#' + h : '');
+  if (url !== location.pathname + location.search + location.hash) history.replaceState(null, '', url);
+}
 SITE_PROJECTS.forEach(p => {
   const get = k => (p.info.find(([key]) => key === k) || [])[1] || '';
   PROJECTS[p.cat].push({
     name: p.title, screen: p.screen, year: p.year, role: get('role'), client: p.org, dur: p.type,
     tools: get('tools'), credits: p.info.filter(([k]) => k !== 'role' && k !== 'tools'),
-    desc: p.desc.join('\n\n'), scheme: p.scheme || ''
+    desc: p.desc.join('\n\n'), scheme: p.scheme || '', slug: p.slug
   });
 });
 
@@ -1524,6 +1532,10 @@ function updateEncoderDials() {
 
 function render() {
   pushHistory();
+  if (window.innerWidth > 880) {
+    setHash(activeSection === 'work' ? (PROJECTS[activeCat][activeIdx] || {}).slug
+          : activeSection === 'about' ? 'about' : '');
+  }
   document.getElementById('info-block').style.visibility = activeSection === 'main' ? 'hidden' : '';
   document.querySelector('.frame').classList.toggle('has-info', activeSection !== 'main');
   if (activeSection === 'main' || activeSection === 'about') {
@@ -1780,6 +1792,24 @@ window.addEventListener('resize', fitKeyboard);
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitKeyboard);
 
 // ───────── init ──────────
+function applyHash() {
+  const h = decodeURIComponent(location.hash.slice(1));
+  if (!h) return false;
+  let sel = null;
+  if (h === 'about') { activeSection = 'about'; sel = '.btn.fn.t3'; }
+  else {
+    const cat = Object.keys(PROJECTS).find(c => PROJECTS[c].some(w => w.slug === h));
+    if (!cat) return false;
+    activeSection = 'work'; activeCat = cat;
+    activeIdx = catIdx[cat] = PROJECTS[cat].findIndex(w => w.slug === h);
+    sel = '.btn.fn.t2';
+  }
+  document.querySelectorAll('.btn.fn').forEach(f => f.classList.remove('on'));
+  const btn = document.querySelector(sel); if (btn) btn.classList.add('on');
+  return true;
+}
+applyHash();
+window.addEventListener('hashchange', () => { if (applyHash()) render(); });
 render();
 fitKeyboard();
 
@@ -1795,7 +1825,7 @@ fitKeyboard();
   document.getElementById('m-work').innerHTML = M_CATS.map(cat => `
     <div class="m-grp"><span class="m-dot ${cat}"></span><span class="m-anno">${cat}</span></div>
     ${M_PROJECTS.map((p, i) => p.cat !== cat ? '' : `
-      <div class="m-item">
+      <div class="m-item" data-slug="${p.slug}">
         <button class="m-row" aria-expanded="false">
           <span>${n2(i)}</span><span class="t">${esc(p.title)}</span><span class="y">${p.year}</span>
           <span class="s">${esc(p.type)}</span>
@@ -1811,6 +1841,7 @@ fitKeyboard();
   document.querySelectorAll('#m-work .m-row').forEach(b => b.addEventListener('click', () => {
     const it = b.parentElement, open = !it.classList.contains('open');
     document.querySelectorAll('#m-work .m-item.open').forEach(x => { x.classList.remove('open'); x.firstElementChild.setAttribute('aria-expanded', 'false'); });
+    setHash(open ? it.dataset.slug : '');
     if (open) {
       it.classList.add('open'); b.setAttribute('aria-expanded', 'true');
       b.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1837,7 +1868,25 @@ fitKeyboard();
     document.querySelectorAll('.m-bar [data-view]').forEach(x => x.classList.toggle('on', x === b));
     document.querySelectorAll('.m-view').forEach(v => v.hidden = v.id !== 'm-' + b.dataset.view);
     window.scrollTo({ top: 0 });
+    if (b.dataset.view === 'about') setHash('about');
+    else if (b.dataset.view === 'work') { const o = document.querySelector('#m-work .m-item.open'); setHash(o ? o.dataset.slug : ''); }
   }));
+
+  // open the project / tab from the link
+  function mApplyHash() {
+    if (window.innerWidth > 880) return;
+    const h = decodeURIComponent(location.hash.slice(1));
+    if (!h) return;
+    if (h === 'about') { document.querySelector('.m-bar [data-view="about"]').click(); return; }
+    const it = document.querySelector(`#m-work .m-item[data-slug="${CSS.escape(h)}"]`);
+    if (!it) return;
+    document.querySelector('.m-bar [data-view="work"]').click();
+    if (!it.classList.contains('open')) it.querySelector('.m-row').click();
+    setHash(h);
+    requestAnimationFrame(() => it.scrollIntoView({ block: 'start' }));
+  }
+  mApplyHash();
+  window.addEventListener('hashchange', mApplyHash);
   // cv: '#' is a placeholder until the real PDF link is set
   document.getElementById('m-cv').addEventListener('click', e => {
     if (e.currentTarget.getAttribute('href') === '#') e.preventDefault();
