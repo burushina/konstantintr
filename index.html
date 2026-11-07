@@ -604,6 +604,17 @@ body {
   background: var(--bg);
   display: block;
 }
+.keyboard { overflow: hidden; }
+/* 52 white keys; view shows C4–B5 (white keys 23–36): width 52/14, shifted by 23/14 */
+.keys-inner {
+  position: absolute; top: 0; bottom: 0;
+  left: -164.2857%; width: 371.4286%;
+}
+@media (min-width: 881px) {
+  .keys-inner { transition: left 0.6s cubic-bezier(0.65, 0, 0.35, 1), width 0.6s cubic-bezier(0.65, 0, 0.35, 1); }
+  .frame.has-info:not(.closing) .keys-inner { left: 0; width: 100%; }
+}
+@media (min-width: 881px) and (prefers-reduced-motion: reduce) { .keys-inner { transition: none; } }
 .white-keys {
   position: absolute;
   inset: 0;
@@ -1134,8 +1145,10 @@ body {
       </section>
       <!-- KEYBOARD: proper piano with overlapping black keys -->
       <div class="cell keyboard" id="keyboard">
-        <div class="white-keys" id="white-keys"></div>
-        <div class="black-keys" id="black-keys"></div>
+        <div class="keys-inner" id="keys-inner">
+          <div class="white-keys" id="white-keys"></div>
+          <div class="black-keys" id="black-keys"></div>
+        </div>
       </div>
 
     </div>
@@ -1360,14 +1373,15 @@ function goBack() {
 })();
 
 // ───────── piano keyboard ──────────
-const WHITE_NOTES = ['C4','D4','E4','F4','G4','A4','B4','C5','D5','E5','F5','G5','A5','B5'];
-// Each black key is positioned over the boundary AFTER white key index N (0-based)
-const BLACK_KEYS = [
-  {note:'C#4', after:0}, {note:'D#4', after:1},
-  {note:'F#4', after:3}, {note:'G#4', after:4}, {note:'A#4', after:5},
-  {note:'C#5', after:7}, {note:'D#5', after:8},
-  {note:'F#5', after:10}, {note:'G#5', after:11}, {note:'A#5', after:12}
-];
+// Full 88-key piano (A0–C8, 52 white keys). Normally the view is zoomed in on C4–B5 (14 keys);
+// when a project opens the keyboard folds and zooms out, showing the whole piano.
+const WHITE_NOTES = ['A0', 'B0'];
+for (let o = 1; o <= 7; o++) ['C','D','E','F','G','A','B'].forEach(l => WHITE_NOTES.push(l + o));
+WHITE_NOTES.push('C8');
+const BLACK_KEYS = [];
+WHITE_NOTES.forEach((n, i) => {
+  if (i < WHITE_NOTES.length - 1 && 'CDFGA'.includes(n[0])) BLACK_KEYS.push({ note: n[0] + '#' + n.slice(1), after: i });
+});
 const NOTE_FREQ = (n) => {
   const map = {C:0,'C#':1,D:2,'D#':3,E:4,F:5,'F#':6,G:7,'G#':8,A:9,'A#':10,B:11};
   const m = n.match(/([A-G]#?)(\d)/);
@@ -1376,8 +1390,8 @@ const NOTE_FREQ = (n) => {
 };(() => {
   const whiteRow = document.getElementById('white-keys');
   const blackOverlay = document.getElementById('black-keys');
-  const TOTAL_WHITE = WHITE_NOTES.length; // 14
-  const BLACK_W = 5; // % of total
+  const TOTAL_WHITE = WHITE_NOTES.length; // 52
+  const BLACK_W = 0.7 * 100 / TOTAL_WHITE; // black key = 70% of a white key
 
   WHITE_NOTES.forEach((n) => {
     const el = document.createElement('div');
@@ -1901,7 +1915,10 @@ function fitKeyboard() {
   if (!kb) return;
   if (window.innerWidth <= 880) { kb.style.height = ''; return; }
   const fr = document.querySelector('.frame');
-  if (fr.classList.contains('has-info') && !fr.classList.contains('closing')) { kb.style.height = '44px'; return; }
+  if (fr.classList.contains('has-info') && !fr.classList.contains('closing')) {
+    kb.style.height = Math.round(Math.max(48, Math.min(kb.clientWidth / 52 * 3, 80))) + 'px';   // whole piano, real-ish key proportions
+    return;
+  }
   kb.style.height = '150px';
   const top = kb.getBoundingClientRect().top + window.scrollY;
   const free = window.innerHeight - top - 24;           // 24 = page padding
