@@ -866,6 +866,14 @@ body {
 }
 .info-side .k { text-transform: uppercase; }
 .info-desc { white-space: pre-line; }
+.info-media { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 14px; }
+.info-media[hidden] { display: none; }
+.media-item { margin: 0; display: flex; flex-direction: column; gap: 6px; }
+.media-item video { display: block; width: 100%; max-height: 62vh; background: #000; border: 1px solid var(--ink); }
+.media-item audio { display: block; width: 100%; height: 40px; }
+.media-item figcaption { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.m-card .m-media { display: flex; flex-direction: column; gap: 12px; margin-bottom: 14px; }
+.preview { cursor: pointer; }
 .info-scheme { grid-column: 1 / -1; display: block; border: 1px solid var(--ink); background: #F8F7F3; }
 .info-scheme[hidden] { display: none; }
 .info-scheme img { display: block; width: 100%; height: auto; }
@@ -995,9 +1003,11 @@ body {
   @keyframes m-leave  { to { opacity: 0; transform: translateX(-16px); } }
   .project-info h2 { grid-column: 1 / -1; font-size: clamp(34px, 3.6vw, 56px); }
   .info-credits { grid-column: 1 / -1; grid-template-columns: repeat(4, minmax(0, 1fr)); }
-  .info-desc { grid-column: 1 / 8; grid-row: 3 / span 2; max-width: 640px; font-size: 14px; }
+  .info-media { grid-column: 1 / 8; grid-row: 3; }
+  .info-desc { grid-column: 1 / 8; grid-row: 4 / span 2; max-width: 640px; font-size: 14px; }
   .info-side { grid-column: 8 / -1; grid-row: 3; }
   .info-scheme { grid-column: 8 / -1; grid-row: 4; }
+  .project-info.reveal .info-media { animation: m-feed 0.6s cubic-bezier(0.3, 0, 0.2, 1) 0.36s both; }
   .project-info .info-close {
     position: absolute; top: 14px; right: 16px; z-index: 3; border: 1px solid var(--ink); background: var(--bg);
     font: inherit; font-size: 11px; letter-spacing: 0.06em; padding: 4px 8px; cursor: pointer;
@@ -1045,7 +1055,7 @@ body {
       <div class="cell screen span-7 row-3" id="screen">
         <div>
           <div class="row row-status">
-            <span><span class="blink">▶</span> now_playing.mov</span>
+            <span><span class="blink">▶</span> <span id="now-file">now_playing.mov</span></span>
             <span id="screen-mode">synth</span>
           </div>
           <h2 id="screen-title">SOUND DESIGNER</h2>
@@ -1054,7 +1064,7 @@ body {
             <span id="screen-time"></span>
           </div>
         </div>
-        <div class="preview" id="preview" data-mode="video">
+        <div class="preview" id="preview" data-mode="video" onclick="playFromScreen()">
           <!-- AUDIO preview: waveform -->
           <div class="preview-audio">
             <div class="waveform" id="wave"></div>
@@ -1150,7 +1160,9 @@ body {
 
         <p class="info-desc" id="info-desc">Sound designer and audio engineer based near Paris. I build atmosphere, immersion and story through sound — for audio walks, podcasts, installations and film.</p>
 
-        <a class="info-scheme" id="info-scheme" target="_blank" rel="noopener" hidden><img alt=""></a>
+        <div class="info-media" id="info-media" hidden></div>
+
+    <a class="info-scheme" id="info-scheme" target="_blank" rel="noopener" hidden><img alt=""></a>
 
         <div class="info-side">
           <div id="info-extra" class="info-extra"></div>
@@ -1228,29 +1240,29 @@ body {
 <script>
 // ───────── content (shared by desktop + mobile) ──────────
 const SITE_PROJECTS = [
-    { cat: 'narrative', slug: 'balade-sonore', title: 'Balade sonore à Crouy-sur-Ourcq', screen: 'CROUY', year: '2026', type: 'immersive audio walk',
+    { cat: 'narrative', media: [{ src: 'media/balade-sonore-1.mp3', label: 'extract 1' }, { src: 'media/balade-sonore-2.mp3', label: 'extract 2' }], slug: 'balade-sonore', title: 'Balade sonore à Crouy-sur-Ourcq', screen: 'CROUY', year: '2026', type: 'immersive audio walk',
       org: 'Mairie de Crouy-sur-Ourcq / Médiévales du Houssoy',
       desc: ['An immersive audio walk through a medieval village in Seine-et-Marne, guided by the White Lady of local legend across three sites: the church, the market square and the keep. The voices belong to local residents, recorded on location. Free and online year-round via QR codes.'],
       info: [['role', 'concept & script · field recording · organ recording in the church · voice recording, editing & mix · sound design · final mix'],
              ['co-author', 'Polina Burushina'], ['legend', 'Martine Godé'], ['tools', 'logic pro · izotope rx · oktava mk-012']] },
-    { cat: 'narrative', title: 'Exiles', screen: 'EXILES', year: '2023', type: 'audio documentary',
+    { cat: 'narrative', media: [{ src: 'media/exiles.mp4', poster: 'media/exiles.jpg' }], title: 'Exiles',title: 'Exiles', screen: 'EXILES', year: '2023', type: 'audio documentary',
       org: 'ENS Louis-Lumière, International Audiodocumentary Summer Program · supported by the French Ministry for Europe and Foreign Affairs',
       desc: ['A Russian couple rebuilding their life in Paris, told in their own voices.'],
       info: [['role', 'story research · interviews · direction · script · field recording · editing · mix'],
              ['accompanied by', 'Frédérique Pressmann'], ['tools', 'reaper · sound devices mixpre · oktava mk-012 · lem']] },
-    { cat: 'narrative', slug: 'madrid', title: 'Madrid — Luis Candelas', screen: 'MADRID', year: '2025', type: 'immersive group audio walk',
+    { cat: 'narrative', media: [{ src: 'media/madrid.mp3', label: 'extract' }], slug: 'madrid', title: 'Madrid — Luis Candelas', screen: 'MADRID', year: '2025', type: 'immersive group audio walk',
       org: 'Golos Vnutri · EN / ES versions',
       desc: ['A walk through old Madrid in the footsteps of Luis Candelas, the legendary 19th-century thief, blending documentary research and fiction.',
              'The key challenge was timing: the English and Spanish versions had to match the same walking pace and arrive at each location together, even though the languages run at different lengths.'],
       info: [['role', 'sound script · sound design · SFX editing · music supervision · mix for wireless group headphones'], ['tools', 'logic pro · izotope rx']] },
-    { cat: 'music', title: 'Monsters', screen: 'MONSTERS', year: '2020', type: 'music for video', org: 'V-A-C Foundation',
+    { cat: 'music', media: [{ src: 'media/monsters.mp4', poster: 'media/monsters.jpg' }], title: 'Monsters',title: 'Monsters', screen: 'MONSTERS', year: '2020', type: 'music for video', org: 'V-A-C Foundation',
       desc: ['Original music for the closing film of a V-A-C workshop on the body and movement. Following the curators’ idea of showing the “reverse side”, a specially recorded Queen of the Night aria was cut into reversed samples.',
              'The techno-leaning pulse works as a counterpoint to the participants’ arrhythmic, writhing movements on screen.'],
       info: [['role', 'composition · sampling & sound design · mix'], ['tools', 'logic pro']] },
-    { cat: 'music', title: 'Last Disco', screen: 'LAST DISCO', year: '2022', type: 'music video', org: 'Supercomfort · dir. Dina Davydova',
+    { cat: 'music', media: [{ src: 'media/last-disco.mp4', poster: 'media/last-disco.jpg', label: 'end credits' }], title: 'Last Disco',title: 'Last Disco', screen: 'LAST DISCO', year: '2022', type: 'music video', org: 'Supercomfort · dir. Dina Davydova',
       desc: ['A music video conceived as an homage to the American slashers of the 1960s–80s: a school disco, a group of teenagers, a series of murders. I wrote the end-credits music — hip-hop with a slasher edge — plus sound design accents for the video.'],
       info: [['role', 'end-credits music & mix · sound design'], ['tools', 'logic pro']] },
-    { cat: 'music', title: 'FUGA 24', screen: 'FUGA 24', year: '2023', type: 'audio triptych', org: 'TOLK, independent Russian-language media',
+    { cat: 'music', media: [{ src: 'media/fuga-24.mp4', poster: 'media/fuga-24.jpg' }], title: 'FUGA 24',title: 'FUGA 24', screen: 'FUGA 24', year: '2023', type: 'audio triptych', org: 'TOLK, independent Russian-language media',
       desc: ['A three-part audio piece marking one year since the start of the war in Ukraine (24 February 2023). The title holds three meanings at once: the fugue as musical form, fuga as flight, and the fugue state — a break from oneself.',
              'Documentary interviews, media archive and original music are woven together in three movements.'],
       info: [['role', 'interviews · editing · composition · mix'], ['tools', 'logic pro · izotope rx · teenage engineering op-1']] },
@@ -1260,7 +1272,7 @@ const SITE_PROJECTS = [
       scheme: 'schemes/ecomorf.svg',
       info: [['role', 'music & sound design (opening 9 minutes) · technical setup of the 8-channel audio in the space'],
              ['visuals', 'Stain'], ['curators', 'Anton Mints, Andrey Antonets (OID)'], ['tools', 'zoom h6 · teenage engineering op-1 · ableton live']] },
-    { cat: 'installations', title: 'Synesthetic Space', screen: 'SYNESTHESIA', year: '2025', type: '4-channel audiovisual installation', org: 'Totem, association Beau Geste, Crouy-sur-Ourcq',
+    { cat: 'installations', media: [{ src: 'media/synesthetic-space.mp4', poster: 'media/synesthetic-space.jpg' }], title: 'Synesthetic Space',title: 'Synesthetic Space', screen: 'SYNESTHESIA', year: '2025', type: '4-channel audiovisual installation', org: 'Totem, association Beau Geste, Crouy-sur-Ourcq',
       desc: ['An installation exploring synesthesia. I improvised live with instruments and field recordings while artist Polina Burushina, a strong synesthete, listened with her eyes closed and described the images the sound produced. From the recordings we edited a single piece, and Polina animated her visions to it.',
              'Shown in a light-sealed black cube of about 1.8 × 1.8 m, with projection, four-channel sound, cushions and incense for full immersion.'],
       scheme: 'schemes/synesthetic-space.svg',
@@ -1276,7 +1288,7 @@ const SITE_PROJECTS = [
       desc: ['Vera, a mother of many children, goes with her husband and three kids to a friend’s country house and tries to “relax” there.',
              'The main challenge was the dialogue mix: several lavalier mics running at once, one on each character, plus the boom, blended into one natural, intelligible scene.'],
       info: [['role', 'post-production sound · dialogue editing & mix · sound design · music for the end credits']] },
-    { cat: 'film', slug: '2-million-dollars', title: '2 Million Dollars Story', screen: '2M$ STORY', year: '2021', type: 'short comedy film', org: '',
+    { cat: 'film', media: [{ src: 'media/2-million-dollars-1.mp4', poster: 'media/2-million-dollars-1.jpg', label: 'excerpt 1' }, { src: 'media/2-million-dollars-2.mp4', poster: 'media/2-million-dollars-2.jpg', label: 'excerpt 2' }], slug: '2-million-dollars', title: '2 Million Dollars Story', screen: '2M$ STORY', year: '2021', type: 'short comedy film', org: '',
       desc: ['The film was shot without any production sound, so the entire soundtrack was built from scratch in post: every line of dialogue re-recorded, every footstep, door and room created anew.'],
       info: [['role', 'ADR recording & editing · foley · ambiences · SFX · mix'], ['music', 'Arseniy Bobryshev'], ['tools', 'reaper · logic pro']] },
     { cat: 'film', slug: 'the-end-of-ends', title: 'Konets kontsov (The End of Ends)', screen: 'THE END', year: '2025', type: 'feature film, drama, 84 min', org: 'dir. Anton Bilzho, Alfiya Khabibullina',
@@ -1311,7 +1323,7 @@ SITE_PROJECTS.forEach(p => {
   PROJECTS[p.cat].push({
     name: p.title, screen: p.screen, year: p.year, role: get('role'), client: p.org, dur: p.type,
     tools: get('tools'), credits: p.info.filter(([k]) => k !== 'role' && k !== 'tools'),
-    desc: p.desc.join('\n\n'), scheme: p.scheme || '', slug: p.slug
+    desc: p.desc.join('\n\n'), scheme: p.scheme || '', slug: p.slug, media: p.media || []
   });
 });
 
@@ -1540,18 +1552,50 @@ function playNote(note, el) {
 function updatePreview(cat, cur) {
   const preview = document.getElementById('preview');
   if (!preview) return;
-  const VIDEO_CATS = new Set(['film']);
-  const isVideo = VIDEO_CATS.has(cat);
+  const media = (cur && cur.media) || [];
+  const isVideo = media.length ? /\.mp4$/.test(media[0].src) : cat === 'film';
   preview.setAttribute('data-mode', isVideo ? 'video' : 'audio');
 
   if (isVideo) {
     const fpsMap = {film: '24 fps'};
     const resMap = {film: '1920×1080 · h.264'};
-    document.getElementById('video-meta-l').textContent = resMap[cat] || '1920×1080 · h.264';
+    document.getElementById('video-meta-l').textContent = media.length ? '720p · h.264' : (resMap[cat] || '1920×1080 · h.264');
     document.getElementById('video-meta-r').textContent = `${fpsMap[cat] || '24 fps'} · stereo mix`;
   }
 }
 
+
+// real media: players in the project panel; the screen shows the file and starts playback on click
+const escH = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const mediaHTML = (list, title, mobile) => list.map(m => {
+  const cap = m.label ? `<figcaption>${escH(m.label)}</figcaption>` : '';
+  const el = /\.mp4$/.test(m.src)
+    ? `<video controls playsinline preload="${mobile ? 'none' : 'metadata'}" src="${m.src}"${m.poster ? ` poster="${m.poster}"` : ''} aria-label="${escH(title)}"></video>`
+    : `<audio controls preload="${mobile ? 'none' : 'metadata'}" src="${m.src}" aria-label="${escH(title)}"></audio>`;
+  return `<figure class="media-item">${el}${cap}</figure>`;
+}).join('');
+function setMedia(list, name) {
+  const box = document.getElementById('info-media');
+  list = list || [];
+  box.hidden = !list.length;
+  box.innerHTML = mediaHTML(list, name || '', false);
+  const nf = document.getElementById('now-file');
+  if (nf) nf.textContent = list.length ? list[0].src.split('/').pop() : 'now_playing.mov';
+}
+function stopAllMedia() { document.querySelectorAll('video, audio').forEach(m => { try { m.pause(); } catch (e) {} }); }
+function playFromScreen() {
+  const m = document.querySelector('#info-media video, #info-media audio');
+  if (!m) return;
+  if (m.paused) { stopAllMedia(); m.play(); } else m.pause();
+}
+document.addEventListener('play', e => {           // only one thing plays at a time
+  document.querySelectorAll('video, audio').forEach(m => { if (m !== e.target) m.pause(); });
+  if (e.target.closest && e.target.closest('#info-media')) document.getElementById('screen').classList.add('playing');
+}, true);
+document.addEventListener('pause', () => {
+  if (![...document.querySelectorAll('#info-media video, #info-media audio')].some(m => !m.paused))
+    document.getElementById('screen').classList.remove('playing');
+}, true);
 
 function setScheme(src, name) {
   const a = document.getElementById('info-scheme');
@@ -1732,6 +1776,8 @@ function renderCore() {
   setCredit('info-dur',    cur.dur);
   document.getElementById('info-desc').textContent = cur.desc;
   setScheme(cur.scheme, cur.name);
+  stopAllMedia();
+  setMedia(cur.media, cur.name);
   document.getElementById('info-tools').textContent = cur.tools;
   renderExtra(cur.credits);
   // micro strip for mobile
@@ -1775,6 +1821,8 @@ function renderSectionInfo(name) {
   setCredit('info-dur',    s.dur);
   document.getElementById('info-desc').textContent  = s.desc;
   setScheme('');
+  stopAllMedia();
+  setMedia([]);
   document.getElementById('info-tools').textContent = s.tools;
   renderExtra([]);
   document.getElementById('info-block').setAttribute('data-micro', s.micro || s.year || '—');
@@ -2015,6 +2063,7 @@ fitKeyboard();
         </button>
         <div class="m-card">
           ${p.org ? `<div class="m-org">${esc(p.org)}</div>` : ''}
+          ${p.media && p.media.length ? `<div class="m-media">${mediaHTML(p.media, p.title, true)}</div>` : ''}
           ${p.desc.map(t => `<p>${esc(t)}</p>`).join('')}
           ${p.scheme ? `<a class="m-scheme" href="${p.scheme}" target="_blank" rel="noopener"><img src="${p.scheme}" alt="${esc(p.title)} — installation scheme" loading="lazy"></a>` : ''}
           <dl>${p.info.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join('')}</dl>
