@@ -221,11 +221,35 @@ body {
 
 /* ── screen player ── */
 .screen { position: relative; overflow: hidden; }
-.scr-video { position: absolute; z-index: 40; background: #000; display: none; flex-direction: column; border: 1px solid var(--ink); box-sizing: border-box; overflow: hidden; }
-.scr-video.on { display: flex; }
+.top { grid-column: 1 / -1; display: grid; grid-template-columns: var(--scrW, 58.3333%) minmax(0, 1fr);
+  transition: grid-template-columns 0.55s cubic-bezier(0.65, 0, 0.35, 1); }
+.top-right { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); grid-template-rows: auto minmax(0, 1fr); min-width: 0; }
+.top-right .enc-1 { grid-column: 1; grid-row: 1; } .top-right .enc-2 { grid-column: 2; grid-row: 1; }
+.top-right .enc-3 { grid-column: 3; grid-row: 1; } .top-right .enc-4 { grid-column: 4; grid-row: 1; }
+.top-right .top-dots { grid-column: 5; grid-row: 1 / 3; }
+.top-right .bio-cell { grid-column: 1 / 4; grid-row: 2; }
+.top-right .info-btn { grid-column: 4; grid-row: 2; }
+.top-right .enc .lbl-name, .top-right .bio-cell p { overflow: hidden; text-overflow: ellipsis; }
+/* video beside: the right block narrows and re-stacks — encoders 2×2, bio and info below */
+.top.vw:not(.stack) .top-right { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 0.45fr); grid-template-rows: auto auto minmax(0, 1fr) auto; }
+.top.vw:not(.stack) .top-right .enc-1 { grid-column: 1; grid-row: 1; } .top.vw:not(.stack) .top-right .enc-2 { grid-column: 2; grid-row: 1; }
+.top.vw:not(.stack) .top-right .enc-3 { grid-column: 1; grid-row: 2; } .top.vw:not(.stack) .top-right .enc-4 { grid-column: 2; grid-row: 2; }
+.top.vw:not(.stack) .top-right .bio-cell { grid-column: 1 / 3; grid-row: 3; }
+.top.vw:not(.stack) .top-right .info-btn { grid-column: 1 / 3; grid-row: 4; min-height: 52px; }
+.top.vw:not(.stack) .top-right .top-dots { grid-column: 3; grid-row: 1 / 5; }
+/* wide video: the right block slides under the screen as one strip */
+.top.stack .top-right { grid-column: 1 / -1; grid-row: 2; grid-template-rows: auto;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) minmax(0, 3fr) minmax(0, 1fr) minmax(0, 0.6fr);
+  animation: strip-in 0.45s cubic-bezier(0.34, 1.3, 0.64, 1); }
+.top.stack .top-right > * { grid-row: 1; }
+.top.stack .top-right .bio-cell { grid-column: 5; } .top.stack .top-right .info-btn { grid-column: 6; } .top.stack .top-right .top-dots { grid-column: 7; }
+@keyframes strip-in { from { transform: translateY(-14px); opacity: 0; } to { transform: none; opacity: 1; } }
 .screen { transition: min-height 0.55s cubic-bezier(0.65, 0, 0.35, 1); }
+.scr-video { position: absolute; inset: 0; z-index: 5; background: #000; display: none; flex-direction: column; }
+.screen.video-on .scr-video { display: flex; animation: vid-on 0.3s steps(4, end); }
+@keyframes vid-on { from { clip-path: inset(50% 0 50% 0); } to { clip-path: inset(0 0 0 0); } }
 /* preview: still frame behind the screen text, muted motion on hover */
-.screen > *:not(.scr-peek) { position: relative; z-index: 1; }
+.screen > *:not(.scr-peek):not(.scr-video) { position: relative; z-index: 1; }
 .screen.has-video { background-size: cover; background-position: center;
   background-image: linear-gradient(rgba(10,16,13,0.62), rgba(10,16,13,0.9)), var(--poster); }
 .scr-peek { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; opacity: 0; transition: opacity 0.35s steps(4, end); pointer-events: none; }
@@ -1076,21 +1100,11 @@ body {
     <span class="corner-tr"></span>
     <span class="corner-bl"></span>
 
-    <!-- video window: grows out of the screen to the video's proportions -->
-        <div class="scr-video" id="scr-video-wrap">
-          <video id="scr-video" playsinline preload="none"></video>
-          <div class="scr-bar">
-            <button type="button" class="scr-btn" id="scr-vplay" onclick="playerToggle()" aria-label="play / pause">▶</button>
-            <div class="scr-prog" id="scr-vprog" onclick="seekFromBar(event, this)"><i id="scr-vfill"></i></div>
-            <span class="scr-time" id="scr-vtime">0:00 / 0:00</span>
-            <button type="button" class="scr-btn" onclick="playerFull()" aria-label="fullscreen">⤢</button>
-            <button type="button" class="scr-btn" onclick="playerStop()" aria-label="close video">×</button>
-          </div>
-        </div>
     <div class="grid">
 
-      <!-- SCREEN — shifted right -->
-      <div class="cell screen span-7 row-3" id="screen">
+      <!-- TOP: screen + right block; when a video plays the screen grows and the right block makes room -->
+      <div class="top" id="top">
+      <div class="cell screen" id="screen">
         <div>
           <div class="row row-status">
             <span><span class="blink">▶</span> <span id="now-file">now_playing.mov</span></span>
@@ -1102,6 +1116,17 @@ body {
             <span id="screen-time"></span>
           </div>
         </div>
+    <!-- video plays inside the screen; the screen resizes to the video -->
+            <div class="scr-video" id="scr-video-wrap">
+              <video id="scr-video" playsinline preload="none"></video>
+              <div class="scr-bar">
+                <button type="button" class="scr-btn" id="scr-vplay" onclick="playerToggle()" aria-label="play / pause">▶</button>
+                <div class="scr-prog" id="scr-vprog" onclick="seekFromBar(event, this)"><i id="scr-vfill"></i></div>
+                <span class="scr-time" id="scr-vtime">0:00 / 0:00</span>
+                <button type="button" class="scr-btn" onclick="playerFull()" aria-label="fullscreen">⤢</button>
+                <button type="button" class="scr-btn" onclick="playerStop()" aria-label="close video">×</button>
+              </div>
+            </div>
         <video class="scr-peek" id="scr-peek" muted playsinline loop preload="none" aria-hidden="true"></video>
         <audio id="scr-audio" preload="none"></audio>
         <div class="preview" id="preview" data-mode="video">
@@ -1140,6 +1165,7 @@ body {
         </div>
       </div>
 
+      <div class="top-right" id="top-right">
       <!-- row 1: 4 round colored encoders -->
       <div class="cell enc enc-1 acc" id="enc-1" data-cat="narrative" onclick="setCategory('narrative', this)">
         <span class="anno">enc.1</span>
@@ -1165,11 +1191,11 @@ body {
         <span class="lbl-name">film</span>
         <span class="count-color">4 works</span>
       </div>
-      <div class="cell row-3 fill-dots" aria-hidden="true"></div>
+      <div class="cell fill-dots top-dots" aria-hidden="true"></div>
 
       <!-- row 2 right side (cols 8-11): shuffle + fill (col 12 taken by tall brand) -->
-      <div class="cell bio-cell span-3 row-2"><p>Konstantin Troitsky — sound designer and audio engineer based near Paris.</p></div>
-      <div class="cell btn fn t3 info-btn row-2" id="info-btn" onclick="toggleMenu(event)" aria-haspopup="true" aria-expanded="false">
+      <div class="cell bio-cell"><p>Konstantin Troitsky — sound designer and audio engineer based near Paris.</p></div>
+      <div class="cell btn fn t3 info-btn" id="info-btn" onclick="toggleMenu(event)" aria-haspopup="true" aria-expanded="false">
         <span class="corner"></span><span class="lbl">info</span>
         <div class="info-menu" id="info-menu" role="menu">
           <button type="button" role="menuitem" onclick="menuGo(event, 'about')">about</button>
@@ -1178,7 +1204,8 @@ body {
         </div>
       </div>
 
-      <!-- row 3 right side (cols 8-11): decorative fills -->
+      </div>
+      </div>
 
       <!-- NUMBER SELECTOR ROW (12 cells) -->
       <div class="cell num wide span-3" data-idx="0" onclick="setIndex(0)"><span class="anno"></span><span class="num-big"></span><span class="num-meta"></span></div>
@@ -1688,51 +1715,41 @@ function playerToggle() {
   } else el.pause();
 }
 function playerTrack(i) { if (i !== curTrack) { loadTrack(i); playerToggle(); } }
-// video window: opens from the screen and resizes to the video's aspect ratio
+// video: the screen itself grows to the video's proportions, the right block makes room
 let vwOpen = false;
-function vwTarget() {
-  const dev = document.querySelector('.device').getBoundingClientRect();
-  const scr = document.getElementById('screen').getBoundingClientRect();
-  const m = curMedia[curTrack], ar = (m && ASPECT[m.src]) || 16 / 9, BAR = 38;
-  const maxH = Math.max(scr.height, window.innerHeight * 0.78);
-  let w = dev.width, h = w / ar + BAR;
+function vwLayout() {
+  const top = document.getElementById('top'), scr = document.getElementById('screen');
+  const W = top.getBoundingClientRect().width;
+  const m = curMedia[curTrack], ar = (m && ASPECT[m.src]) || 16 / 9, BAR = 38, MIN_SIDE = 340;
+  const maxH = Math.max(260, window.innerHeight * 0.78);
+  let w = W, h = w / ar + BAR;
   if (h > maxH) { h = maxH; w = (h - BAR) * ar; }
-  return { left: 0, top: scr.top - dev.top, width: Math.round(w), height: Math.round(h) };
+  const stack = W - w < MIN_SIDE;
+  if (stack) { w = W; h = Math.min(W / ar + BAR, maxH); }
+  top.classList.toggle('stack', stack);
+  top.style.setProperty('--scrW', (w / W * 100).toFixed(3) + '%');
+  scr.style.minHeight = Math.round(h) + 'px';
 }
-function screenBox() {
-  const dev = document.querySelector('.device').getBoundingClientRect(), r = document.getElementById('screen').getBoundingClientRect();
-  return { left: r.left - dev.left, top: r.top - dev.top, width: r.width, height: r.height };
-}
-const px = o => ({ left: o.left + 'px', top: o.top + 'px', width: o.width + 'px', height: o.height + 'px' });
 function openVideoWindow() {
-  const wrap = document.getElementById('scr-video-wrap'), scr = document.getElementById('screen');
+  const scr = document.getElementById('screen');
   scr.classList.remove('peeking'); const pk = document.getElementById('scr-peek'); try { pk.pause(); } catch (e) {}
-  const from = screenBox(), to = vwTarget();
-  scr.style.minHeight = to.height + 'px';                // the rows below move down to make room
-  Object.assign(wrap.style, px(to));
-  wrap.classList.add('on');
-  if (!vwOpen && !calm()) {
-    clunk('open');
-    wrap.animate([{ ...px(from) }, { ...px({ ...to, height: to.height + 10 }), offset: 0.8 }, { ...px(to) }],
-      { duration: 560, easing: 'cubic-bezier(0.65, 0, 0.35, 1)' });
-  }
+  if (!vwOpen) clunk('open');
   vwOpen = true;
+  document.getElementById('top').classList.add('vw');
+  scr.classList.add('video-on');
+  vwLayout();
 }
 function closeVideoWindow(instant) {
-  const wrap = document.getElementById('scr-video-wrap'), scr = document.getElementById('screen');
   if (!vwOpen) return;
   vwOpen = false;
+  if (!instant) clunk('close');
+  const top = document.getElementById('top'), scr = document.getElementById('screen');
+  scr.classList.remove('video-on');
+  top.classList.remove('vw', 'stack');
+  top.style.removeProperty('--scrW');
   scr.style.minHeight = '';
-  if (instant || calm()) { wrap.classList.remove('on'); return; }
-  clunk('close');
-  const from = { left: parseFloat(wrap.style.left), top: parseFloat(wrap.style.top), width: parseFloat(wrap.style.width), height: parseFloat(wrap.style.height) };
-  requestAnimationFrame(() => {
-    const to = screenBox();
-    const a = wrap.animate([{ ...px(from) }, { ...px(to) }], { duration: 420, easing: 'cubic-bezier(0.55, 0, 0.75, 0.3)', fill: 'forwards' });
-    a.onfinish = () => { if (!vwOpen) wrap.classList.remove('on'); a.cancel(); };
-  });
 }
-window.addEventListener('resize', () => { if (vwOpen) { const to = vwTarget(); document.getElementById('screen').style.minHeight = to.height + 'px'; Object.assign(document.getElementById('scr-video-wrap').style, px(to)); } });
+window.addEventListener('resize', () => { if (vwOpen) vwLayout(); });
 // preview on hover: muted motion behind the screen text
 (() => {
   const scr = document.getElementById('screen'), pk = document.getElementById('scr-peek');
