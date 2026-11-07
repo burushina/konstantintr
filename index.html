@@ -973,6 +973,20 @@ body {
   .project-info .info-close:hover { background: var(--ink); color: var(--bg); }
   .project-info { position: relative; }
   .keyboard { transition: height 0.5s cubic-bezier(0.34, 1.35, 0.64, 1); }
+  /* control row folds into a thin rail while a project is open: only work / about / contact / cv stay */
+  .ctl { height: 62px; transition: height 0.45s cubic-bezier(0.65, 0, 0.35, 1), padding 0.45s cubic-bezier(0.65, 0, 0.35, 1), background 0.2s; }
+  .ctl > * { transition: opacity 0.2s, font-size 0.3s; }
+  .frame.has-info:not(.closing) .grid { grid-auto-rows: minmax(0, auto); }
+  .frame.has-info:not(.closing) .cell:not(.ctl) { min-height: 60px; }
+  .frame.has-info:not(.closing) .ctl { height: 26px; padding-top: 0; padding-bottom: 0; flex-direction: row; align-items: center; gap: 6px; }
+  .frame.has-info:not(.closing) .ctl .corner { opacity: 0; }
+  .frame.has-info:not(.closing) .ctl .lbl,
+  .frame.has-info:not(.closing) .ctl .micro { font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; }
+  .frame.has-info:not(.closing) .ctl.fav .glyph { font-size: 12px; order: 2; }
+  .frame.has-info:not(.closing) .ctl.fav .micro { order: 1; }
+  .frame.has-info:not(.closing) .ctl.toy { background: var(--bg); pointer-events: none; }
+  .frame.has-info:not(.closing) .ctl.toy > * { opacity: 0; }
+
 }
 @media (min-width: 881px) and (prefers-reduced-motion: reduce) {
   .project-info.reveal *, .project-info.leaving > * { animation: none !important; }
@@ -1086,37 +1100,37 @@ body {
       <div class="cell num wide span-3" data-idx="3" onclick="setIndex(3)"><span class="anno"></span><span class="num-big"></span><span class="num-meta"></span></div>
 
       <!-- TRANSPORT (rw/play/stop) + SECTIONS (main/work/about/contact) + CV + MODES -->
-      <div class="cell tr" id="btn-play" onclick="togglePlay()">
+      <div class="cell ctl toy tr" id="btn-play" onclick="togglePlay()">
         <span class="glyph">▶</span><span class="micro">play</span>
       </div>
-      <div class="cell aux span-3" onclick="shuffle(this)">
+      <div class="cell ctl toy aux span-3" onclick="shuffle(this)">
         <span class="lbl-md">↻ shuffle</span>
       </div>
 
-      <div class="cell btn fn t2" onclick="setSection('work', this)">
+      <div class="cell ctl btn fn t2" onclick="setSection('work', this)">
         <span class="corner"></span><span class="lbl">work</span>
       </div>
-      <div class="cell btn fn t3" onclick="setSection('about', this)">
+      <div class="cell ctl btn fn t3" onclick="setSection('about', this)">
         <span class="corner"></span><span class="lbl">about</span>
       </div>
-      <div class="cell btn fn t4" onclick="openContact()">
+      <div class="cell ctl btn fn t4" onclick="openContact()">
         <span class="corner"></span><span class="lbl">contact</span>
       </div>
 
-      <a class="cell tr fav" id="btn-cv" href="#" target="_blank" rel="noopener" onclick="bumpCv(event, this)">
+      <a class="cell ctl tr fav" id="btn-cv" href="#" target="_blank" rel="noopener" onclick="bumpCv(event, this)">
         <span class="glyph" id="cv-glyph">↓</span><span class="micro">cv</span>
       </a>
 
-      <div class="cell btn mode" onclick="setMode('synth', this)">
+      <div class="cell ctl toy btn mode" onclick="setMode('synth', this)">
         <span class="lbl">synth</span>
       </div>
-      <div class="cell btn mode" onclick="setMode('drum', this)">
+      <div class="cell ctl toy btn mode" onclick="setMode('drum', this)">
         <span class="lbl">drum</span>
       </div>
-      <div class="cell btn mode on" onclick="setMode('pad', this)">
+      <div class="cell ctl toy btn mode on" onclick="setMode('pad', this)">
         <span class="lbl">pad</span>
       </div>
-      <div class="cell btn mode" onclick="setMode('pluck', this)">
+      <div class="cell ctl toy btn mode" onclick="setMode('pluck', this)">
         <span class="lbl">pluck</span>
       </div>
 
@@ -1641,6 +1655,7 @@ function render() {
       if (token !== infoToken) return;
       frame.classList.remove('has-info', 'closing');
       info.classList.remove('leaving'); a.cancel();
+      fitKeyboard();
     };
   } else if (wasOpen && willOpen && newHTML !== prevHTML) {   // SWITCH — tape change
     clunk('open');
@@ -1920,7 +1935,11 @@ function fitKeyboard() {
     return;
   }
   kb.style.height = '150px';
-  const top = kb.getBoundingClientRect().top + window.scrollY;
+  let top = kb.getBoundingClientRect().top + window.scrollY;
+  if (fr.classList.contains('closing')) {        // panel and folded rail are still collapsing — aim for the final layout
+    const info = document.getElementById('info-block'), ctl = document.querySelector('.ctl');
+    top -= info.offsetHeight + (ctl ? 62 - ctl.offsetHeight : 0);
+  }
   const free = window.innerHeight - top - 24;           // 24 = page padding
   kb.style.height = Math.max(150, Math.min(free, 520)) + 'px';
 }
