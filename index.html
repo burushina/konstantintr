@@ -324,7 +324,9 @@ body {
 .enc.enc-3 .dial-big { --rot: -75deg; }
 .enc.enc-4 .dial-big { --rot: 60deg; }
 
+.enc.enc-3 .lbl-name { font-size: clamp(9px, 0.92vw, 12px); letter-spacing: -0.02em; }
 .enc .lbl-name {
+  white-space: nowrap;
   font-size: 12px;
   font-weight: 500;
   letter-spacing: -0.005em;
@@ -1044,7 +1046,7 @@ body {
         <div>
           <div class="row row-status">
             <span><span class="blink">▶</span> now_playing.mov</span>
-            <span id="screen-mode">tape</span>
+            <span id="screen-mode">synth</span>
           </div>
           <h2 id="screen-title">SOUND DESIGNER</h2>
           <div class="row row-meta">
@@ -1104,7 +1106,7 @@ body {
       <div class="cell enc enc-3" id="enc-3" data-cat="installations" onclick="setCategory('installations', this)">
         <span class="anno">enc.3</span>
         <div class="dial-big"></div>
-        <span class="lbl-name">install.</span>
+        <span class="lbl-name">installations</span>
         <span class="count-color">2 works</span>
       </div>
       <div class="cell enc enc-4" id="enc-4" data-cat="film" onclick="setCategory('film', this)">
@@ -1133,24 +1135,6 @@ body {
       <div class="cell num wide span-3" data-idx="1" onclick="setIndex(1)"><span class="anno"></span><span class="num-big"></span><span class="num-meta"></span></div>
       <div class="cell num wide span-3" data-idx="2" onclick="setIndex(2)"><span class="anno"></span><span class="num-big"></span><span class="num-meta"></span></div>
       <div class="cell num wide span-3" data-idx="3" onclick="setIndex(3)"><span class="anno"></span><span class="num-big"></span><span class="num-meta"></span></div>
-
-      <!-- CONTROL ROW: sound modes only -->
-      <div class="cell ctl toy fill-dots span-2" aria-hidden="true"></div>
-
-      <div class="cell ctl toy btn mode span-2" onclick="setMode('synth', this)">
-        <span class="lbl">synth</span>
-      </div>
-      <div class="cell ctl toy btn mode span-2" onclick="setMode('drum', this)">
-        <span class="lbl">drum</span>
-      </div>
-      <div class="cell ctl toy btn mode span-2 on" onclick="setMode('pad', this)">
-        <span class="lbl">pad</span>
-      </div>
-      <div class="cell ctl toy btn mode span-2" onclick="setMode('pluck', this)">
-        <span class="lbl">pluck</span>
-      </div>
-      <div class="cell ctl toy fill-dots span-2" aria-hidden="true"></div>
-
 
       <!-- PROJECT INFO — opens inside the synth, between controls and keyboard -->
       <section class="cell project-info" id="info-block">
@@ -1360,7 +1344,7 @@ const SECTIONS = {
 let activeCat = 'narrative';
 let activeIdx = 0;
 let activeSection = 'main';
-let currentTimbre = 'pad';
+let currentTimbre = 'synth';
 const catIdx = {narrative: 0, music: 0, installations: 0, film: 0};
 
 // Navigation history — RW goes back through it
