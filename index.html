@@ -395,9 +395,16 @@ body {
 }
 .num:hover { background: var(--soft); }
 .num:active { transform: translateY(0.5px); }
-.num.on { background: var(--ink); color: var(--bg); }
-.num.on .anno { color: var(--bg); opacity: 0.7; }
-.num.on:hover { background: var(--ink); }
+/* category colours (same as the encoder caps) — the open project takes its category colour */
+.frame[data-cat="narrative"], .m-item[data-cat="narrative"] { --cat: #2A7BC5; --cat-ink: #FFFFFF; }
+.frame[data-cat="music"],     .m-item[data-cat="music"]     { --cat: #5BBE5B; --cat-ink: #1A1A1A; }
+.frame[data-cat="installations"], .m-item[data-cat="installations"] { --cat: #1A1A1A; --cat-ink: #FFFFFF; }
+.frame[data-cat="film"],      .m-item[data-cat="film"]      { --cat: #FF6B1F; --cat-ink: #1A1A1A; }
+.num { transition: background 0.25s steps(3, end), color 0.25s steps(3, end); }
+.num.on { background: var(--cat, var(--ink)); color: var(--cat-ink, var(--bg)); }
+.num.on .anno { color: inherit; opacity: 0.7; }
+.num.on:hover { background: var(--cat, var(--ink)); }
+.project-info { box-shadow: inset 0 4px 0 var(--cat, transparent); }
 .num.empty { cursor: default; }
 .num.empty .num-big { opacity: 0.18; }
 .num.empty .anno { opacity: 0.18; }
@@ -876,8 +883,8 @@ body {
   .m-row .t { font-weight: 500; font-size: 13px; }
   .m-row .y, .m-row .s { font-size: 11px; color: var(--muted); }
   .m-row .s { grid-column: 2 / 4; }
-  .m-item.open .m-row { background: var(--ink); color: var(--bg); }
-  .m-item.open .m-row .y, .m-item.open .m-row .s { color: #BBB; }
+  .m-item.open .m-row { background: var(--cat, var(--ink)); color: var(--cat-ink, var(--bg)); }
+  .m-item.open .m-row .y, .m-item.open .m-row .s { color: inherit; opacity: 0.72; }
   .m-card { display: none; padding: 14px 16px 18px 54px; background: var(--soft); font-size: 12.5px; line-height: 1.6; }
   .m-item.open .m-card { display: block; }
   .m-card p + p { margin-top: 10px; }
@@ -928,7 +935,7 @@ body {
 .num.wide { padding: 12px 14px; gap: 4px; justify-content: space-between; min-height: 84px; }
 .num.wide .num-big { font-size: 22px; letter-spacing: -0.03em; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .num.wide .num-meta { font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.num.wide.on .num-meta { color: var(--bg); opacity: 0.7; }
+.num.wide.on .num-meta { color: inherit; opacity: 0.7; }
 .bio-cell { padding: 14px 16px; }
 .bio-cell p { font-size: 15px; line-height: 1.5; }
 
@@ -1683,6 +1690,7 @@ function renderCore() {
           : activeSection === 'about' ? 'about' : '');
   }
   document.querySelector('.frame').classList.toggle('has-info', activeSection !== 'main');
+  document.querySelector('.frame').dataset.cat = activeSection === 'work' ? activeCat : '';
   if (typeof fitKeyboard === 'function') fitKeyboard();
   if (activeSection === 'main' || activeSection === 'about') {
     renderSectionInfo(activeSection);
@@ -1986,7 +1994,7 @@ fitKeyboard();
   document.getElementById('m-work').innerHTML = M_CATS.map(cat => `
     <div class="m-grp"><span class="m-dot ${cat}"></span><span class="m-anno">${cat}</span></div>
     ${M_PROJECTS.map((p, i) => p.cat !== cat ? '' : `
-      <div class="m-item" data-slug="${p.slug}">
+      <div class="m-item" data-slug="${p.slug}" data-cat="${p.cat}">
         <button class="m-row" aria-expanded="false">
           <span>${n2(i)}</span><span class="t">${esc(p.title)}</span><span class="y">${p.year}</span>
           <span class="s">${esc(p.type)}</span>
