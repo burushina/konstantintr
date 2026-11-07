@@ -219,6 +219,26 @@ body {
 .screen .vu > span:first-child { color: var(--screen-glow); opacity: 0.85; }
 .screen .vu > span:last-child  { color: var(--screen-blue); opacity: 0.7; }
 
+/* ── screen player ── */
+.screen { position: relative; overflow: hidden; }
+.scr-video { position: absolute; inset: 0; z-index: 4; background: #000; display: none; flex-direction: column; }
+.screen.video-on .scr-video { display: flex; }
+.scr-video video { flex: 1; min-height: 0; width: 100%; object-fit: contain; background: #000; cursor: pointer; }
+.scr-bar { display: flex; align-items: center; gap: 12px; padding: 6px 14px 8px; background: var(--screen-bg); font-size: 17px; color: var(--screen-glow); }
+.scr-btn { all: unset; cursor: pointer; color: var(--screen-pink); font-family: 'VT323', monospace; font-size: 22px; line-height: 1; padding: 0 2px; }
+.scr-btn:hover { color: var(--screen-glow); }
+.scr-prog { flex: 1; height: 8px; background: rgba(127,229,185,0.18); cursor: pointer; position: relative; }
+.scr-prog i { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: var(--screen-glow); }
+.scr-time { color: var(--screen-blue); white-space: nowrap; }
+.screen.has-media .waveform { cursor: pointer; }
+.screen.has-media .waveform .b { opacity: 0.32; transition: opacity 0.15s; }
+.screen.has-media .waveform .b.p { opacity: 1; background: var(--screen-pink); }
+.screen.has-media .waveform:hover .b { opacity: 0.55; }
+.screen.has-media .waveform:hover .b.p { opacity: 1; }
+.vu .trk { all: unset; cursor: pointer; margin-left: 10px; color: var(--screen-blue); opacity: 0.6; }
+.vu .trk.on { opacity: 1; color: var(--screen-pink); }
+.vu .ply { all: unset; cursor: pointer; color: var(--screen-pink); }
+
 /* Preview region — toggles between audio waveform / video filmstrip, fixed height */
 .preview .preview-audio,
 .preview .preview-video {
@@ -1003,7 +1023,7 @@ body {
   @keyframes m-leave  { to { opacity: 0; transform: translateX(-16px); } }
   .project-info h2 { grid-column: 1 / -1; font-size: clamp(34px, 3.6vw, 56px); }
   .info-credits { grid-column: 1 / -1; grid-template-columns: repeat(4, minmax(0, 1fr)); }
-  .info-media { grid-column: 1 / 8; grid-row: 3; }
+  .info-media, .info-media:not([hidden]) { display: none; }
   .info-desc { grid-column: 1 / 8; grid-row: 4 / span 2; max-width: 640px; font-size: 14px; }
   .info-side { grid-column: 8 / -1; grid-row: 3; }
   .info-scheme { grid-column: 8 / -1; grid-row: 4; }
@@ -1064,13 +1084,25 @@ body {
             <span id="screen-time"></span>
           </div>
         </div>
-        <div class="preview" id="preview" data-mode="video" onclick="playFromScreen()">
+        <!-- screen player: video fills the screen while playing -->
+        <div class="scr-video" id="scr-video-wrap">
+          <video id="scr-video" playsinline preload="none"></video>
+          <div class="scr-bar">
+            <button type="button" class="scr-btn" id="scr-vplay" onclick="playerToggle()" aria-label="play / pause">▶</button>
+            <div class="scr-prog" id="scr-vprog" onclick="seekFromBar(event, this)"><i id="scr-vfill"></i></div>
+            <span class="scr-time" id="scr-vtime">0:00 / 0:00</span>
+            <button type="button" class="scr-btn" onclick="playerFull()" aria-label="fullscreen">⤢</button>
+            <button type="button" class="scr-btn" onclick="playerStop()" aria-label="close video">×</button>
+          </div>
+        </div>
+        <audio id="scr-audio" preload="none"></audio>
+        <div class="preview" id="preview" data-mode="video">
           <!-- AUDIO preview: waveform -->
           <div class="preview-audio">
-            <div class="waveform" id="wave"></div>
+            <div class="waveform" id="wave" onclick="seekFromWave(event)"></div>
             <div class="vu">
-              <span>vol ▓▓▓▒░ −6dB</span>
-              <span>48 kHz / 24-bit</span>
+              <span id="vu-l">vol ▓▓▓▒░ −6dB</span>
+              <span id="vu-r">48 kHz / 24-bit</span>
             </div>
           </div>
           <!-- VIDEO preview: filmstrip + play triangle -->
@@ -1553,7 +1585,7 @@ function updatePreview(cat, cur) {
   const preview = document.getElementById('preview');
   if (!preview) return;
   const media = (cur && cur.media) || [];
-  const isVideo = media.length ? /\.mp4$/.test(media[0].src) : cat === 'film';
+  const isVideo = media.length ? false : cat === 'film';
   preview.setAttribute('data-mode', isVideo ? 'video' : 'audio');
 
   if (isVideo) {
@@ -1566,6 +1598,7 @@ function updatePreview(cat, cur) {
 
 
 // real media: players in the project panel; the screen shows the file and starts playback on click
+const PEAKS = {"media/2-million-dollars-1.mp4":[8,41,62,44,41,38,49,29,31,29,40,100,44,31,35,31,47,12,4,4,6,4,4,4,4,4,7,4,4,8,9,8,8,10,10,4,6,8,13,11,4,4,4,4,9,4,8,9,8,7,7,15,6,4,4,11,12,8,10,5,4,4,15,25],"media/2-million-dollars-2.mp4":[8,40,62,43,41,37,49,29,31,29,39,100,44,30,35,31,47,13,4,4,5,4,4,4,4,4,7,4,4,8,9,8,8,9,10,4,5,7,13,11,4,4,4,4,8,4,8,9,8,7,7,14,7,4,4,11,12,7,10,5,4,4,10,28],"media/balade-sonore-1.mp3":[23,74,36,18,13,82,42,41,26,76,62,49,91,55,67,59,27,36,82,59,81,62,43,100,86,34,28,30,21,23,27,41,68,38,4,52,58,24,52,17,32,54,79,28,92,70,20,93,51,38,67,72,24,53,71,38,26,36,20,11,7,4,4,4],"media/balade-sonore-2.mp3":[51,49,50,27,49,25,65,39,53,55,42,44,44,37,78,77,45,93,93,65,48,37,77,82,58,78,19,98,73,75,62,10,89,84,92,71,89,73,57,67,40,56,86,73,70,89,80,72,76,54,64,100,63,84,44,87,33,60,68,64,62,53,41,9],"media/exiles.mp4":[4,61,67,99,39,19,20,31,48,62,74,57,45,55,54,58,62,56,49,45,32,36,40,47,52,49,72,43,44,45,56,39,39,38,12,8,26,30,34,69,66,47,56,49,39,57,35,19,53,31,30,21,28,43,28,32,19,38,26,100,86,84,48,4],"media/fuga-24.mp4":[40,37,59,75,68,60,61,51,55,55,65,49,55,53,68,72,70,69,66,72,73,69,73,73,69,72,68,68,82,67,53,57,61,65,52,54,70,67,61,69,62,63,70,68,62,65,63,55,65,70,66,66,65,71,73,67,73,87,94,89,95,100,44,7],"media/last-disco.mp4":[57,82,76,76,83,71,82,66,84,63,84,62,87,67,84,56,100,68,92,73,96,81,87,86,83,89,78,71,61,67,51,92,78,99,64,98,68,96,72,95,76,91,86,86,85,83,90,66,88,67,89,66,90,64,90,61,90,59,88,33,8,7,6,4],"media/madrid.mp3":[95,41,78,47,57,57,46,22,61,40,50,51,60,64,62,68,62,78,55,93,75,76,52,81,46,47,33,73,48,100,49,50,71,31,60,74,77,43,68,61,98,52,50,46,54,54,62,55,66,44,84,57,74,36,89,73,72,43,66,45,56,63,86,41],"media/monsters.mp4":[82,53,49,73,61,69,100,71,94,64,78,68,81,73,81,65,54,52,60,57,68,74,84,73,77,56,41,52,84,76,84,72,59,50,50,60,54,63,94,75,89,51,77,100,86,97,83,87,88,88,94,87,97,92,60,87,83,91,59,63,38,77,58,47],"media/synesthetic-space.mp4":[39,63,98,71,73,79,67,56,35,29,30,29,39,32,30,67,69,80,61,60,68,65,74,28,24,29,20,21,19,41,37,34,31,35,39,69,58,87,76,90,41,73,65,70,84,94,100,53,51,69,62,55,43,41,37,21,58,46,43,49,44,43,39,61]};
 const escH = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const mediaHTML = (list, title, mobile) => list.map(m => {
   const cap = m.label ? `<figcaption>${escH(m.label)}</figcaption>` : '';
@@ -1579,22 +1612,98 @@ function setMedia(list, name) {
   list = list || [];
   box.hidden = !list.length;
   box.innerHTML = mediaHTML(list, name || '', false);
-  const nf = document.getElementById('now-file');
-  if (nf) nf.textContent = list.length ? list[0].src.split('/').pop() : 'now_playing.mov';
+  setPlayer(list);
 }
 function stopAllMedia() { document.querySelectorAll('video, audio').forEach(m => { try { m.pause(); } catch (e) {} }); }
-function playFromScreen() {
-  const m = document.querySelector('#info-media video, #info-media audio');
-  if (!m) return;
-  if (m.paused) { stopAllMedia(); m.play(); } else m.pause();
+// ── the screen is the player ──
+let curMedia = [], curTrack = 0;
+const fmt = t => { t = Math.max(0, Math.floor(t || 0)); return Math.floor(t / 60) + ':' + String(t % 60).padStart(2, '0'); };
+const isVid = m => /\.mp4$/.test(m.src);
+function activeEl() { return curMedia[curTrack] && isVid(curMedia[curTrack]) ? document.getElementById('scr-video') : document.getElementById('scr-audio'); }
+function drawWave(peaks) {
+  const w = document.getElementById('wave'); w.innerHTML = '';
+  const n = peaks ? peaks.length : 60;
+  for (let i = 0; i < n; i++) {
+    const b = document.createElement('div'); b.className = 'b';
+    b.style.height = peaks ? Math.max(3, peaks[i] * 0.4) + 'px' : (8 + Math.abs(Math.sin(i * 0.4) * 16) + Math.random() * 6) + 'px';
+    w.appendChild(b);
+  }
 }
+function paintProgress() {
+  const el = activeEl(), d = el.duration || 0, t = el.currentTime || 0, f = d ? t / d : 0;
+  const bars = document.querySelectorAll('#wave .b'), k = Math.round(f * bars.length);
+  bars.forEach((b, i) => b.classList.toggle('p', i < k));
+  const fill = document.getElementById('scr-vfill'); if (fill) fill.style.width = (f * 100) + '%';
+  const tm = fmt(t) + ' / ' + (d ? fmt(d) : '–:––');
+  document.getElementById('scr-vtime').textContent = tm;
+  const pl = document.getElementById('vu-play'); if (pl) pl.textContent = (el.paused ? '▶ ' : '❚❚ ') + tm;
+  document.getElementById('scr-vplay').textContent = el.paused ? '▶' : '❚❚';
+}
+function drawVu() {
+  const L = document.getElementById('vu-l'), R = document.getElementById('vu-r');
+  if (!curMedia.length) { L.textContent = 'vol ▓▓▓▒░ −6dB'; R.textContent = '48 kHz / 24-bit'; return; }
+  L.innerHTML = '<button type="button" class="ply" id="vu-play" onclick="playerToggle()">▶ 0:00</button>';
+  R.innerHTML = curMedia.length > 1
+    ? curMedia.map((m, i) => `<button type="button" class="trk${i === curTrack ? ' on' : ''}" onclick="playerTrack(${i})">${escH(m.label || ('take ' + (i + 1)))}</button>`).join('')
+    : escH(curMedia[0].label || (isVid(curMedia[0]) ? 'video · stereo mix' : 'audio · stereo mix'));
+  paintProgress();
+}
+function loadTrack(i) {
+  playerStop(true);
+  curTrack = i;
+  const m = curMedia[i], v = document.getElementById('scr-video'), a = document.getElementById('scr-audio');
+  v.removeAttribute('src'); a.removeAttribute('src'); v.load(); a.load();
+  (isVid(m) ? v : a).src = m.src;
+  if (isVid(m) && m.poster) v.poster = m.poster; else v.removeAttribute('poster');
+  document.getElementById('now-file').textContent = m.src.split('/').pop();
+  drawWave(PEAKS[m.src]);
+  drawVu();
+}
+function setPlayer(list) {
+  curMedia = list || [];
+  const scr = document.getElementById('screen');
+  scr.classList.toggle('has-media', !!curMedia.length);
+  if (curMedia.length) loadTrack(0);
+  else { playerStop(true); drawWave(null); drawVu(); document.getElementById('now-file').textContent = 'now_playing.mov'; }
+}
+function playerToggle() {
+  if (!curMedia.length) return;
+  const el = activeEl();
+  if (el.paused) {
+    if (isVid(curMedia[curTrack])) document.getElementById('screen').classList.add('video-on');
+    el.play();
+  } else el.pause();
+}
+function playerTrack(i) { if (i !== curTrack) { loadTrack(i); playerToggle(); } }
+function playerStop(silent) {
+  ['scr-video', 'scr-audio'].forEach(id => { const m = document.getElementById(id); try { m.pause(); } catch (e) {} });
+  document.getElementById('screen').classList.remove('video-on', 'playing');
+  if (!silent) paintProgress();
+}
+function playerFull() { const v = document.getElementById('scr-video'); (v.requestFullscreen || v.webkitEnterFullscreen || (() => {})).call(v); }
+function seekTo(f) {
+  if (!curMedia.length) return;
+  const el = activeEl();
+  const go = () => { if (el.duration) el.currentTime = f * el.duration; paintProgress(); };
+  if (el.readyState >= 1) go(); else { el.addEventListener('loadedmetadata', go, { once: true }); el.load(); }
+  if (el.paused) playerToggle();
+}
+function seekFromWave(ev) { const r = ev.currentTarget.getBoundingClientRect(); seekTo((ev.clientX - r.left) / r.width); }
+function seekFromBar(ev, el) { const r = el.getBoundingClientRect(); seekTo((ev.clientX - r.left) / r.width); }
+['scr-video', 'scr-audio'].forEach(id => {
+  const m = document.getElementById(id);
+  ['timeupdate', 'loadedmetadata', 'play', 'pause', 'ended'].forEach(e => m.addEventListener(e, paintProgress));
+  m.addEventListener('play', () => document.getElementById('screen').classList.add('playing'));
+  m.addEventListener('pause', () => document.getElementById('screen').classList.remove('playing'));
+  m.addEventListener('ended', () => { if (curTrack < curMedia.length - 1) playerTrack(curTrack + 1); });
+});
+document.getElementById('scr-video').addEventListener('click', playerToggle);
+document.addEventListener('keydown', e => {
+  if (e.code !== 'Space' || /input|textarea|button/i.test(e.target.tagName) || !curMedia.length) return;
+  e.preventDefault(); playerToggle();
+});
 document.addEventListener('play', e => {           // only one thing plays at a time
   document.querySelectorAll('video, audio').forEach(m => { if (m !== e.target) m.pause(); });
-  if (e.target.closest && e.target.closest('#info-media')) document.getElementById('screen').classList.add('playing');
-}, true);
-document.addEventListener('pause', () => {
-  if (![...document.querySelectorAll('#info-media video, #info-media audio')].some(m => !m.paused))
-    document.getElementById('screen').classList.remove('playing');
 }, true);
 
 function setScheme(src, name) {
