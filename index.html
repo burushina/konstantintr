@@ -392,24 +392,18 @@ body {
 /* per-encoder colors — OP-1 order: blue / green / white / orange */
 .enc.enc-1 { --enc-color: #2A7BC5; }
 .enc.enc-2 { --enc-color: #5BBE5B; }
-.enc.enc-3 { --enc-color: #C9C3B3; }
+.enc.enc-3 { --enc-color: #C2ABE8; }   /* same purple as the screen text */
 .enc.enc-4 { --enc-color: #FF6B1F; }
 
-/* white-cap (enc-3): outline-only dial so it reads on white bg */
-.enc.enc-3 .dial-big {
-  background: var(--bg);
-  border: 2.5px solid var(--ink);
-}
-.enc.enc-3 .count-color { color: #6E6A5E; }
+.enc.enc-3 .count-color { color: #7D5FB8; }
 
 /* Active state — cell inverts, colors stay */
 .enc.acc { background: var(--ink); color: var(--bg); }
 .enc.acc:hover { background: var(--ink); }
 .enc.acc .anno { color: var(--bg); opacity: 0.7; }
 .enc.acc .dial-big { border-color: var(--bg); }
-.enc.enc-3.acc .dial-big { background: var(--ink); border: 2.5px solid var(--bg); }
 .enc.acc .dial-big::after { background: var(--bg); }
-.enc.enc-3.acc .count-color { color: var(--bg); opacity: 0.8; }
+.enc.enc-3.acc .count-color { color: #C2ABE8; }
 
 /* Speaker grille (decorative perforated panel) */
 .speaker {
@@ -453,7 +447,7 @@ body {
 /* category colours (same as the encoder caps) — the open project takes its category colour */
 .frame[data-cat="narrative"], .m-item[data-cat="narrative"] { --cat: #2A7BC5; --cat-ink: #FFFFFF; }
 .frame[data-cat="music"],     .m-item[data-cat="music"]     { --cat: #5BBE5B; --cat-ink: #1A1A1A; }
-.frame[data-cat="installations"], .m-item[data-cat="installations"] { --cat: #1A1A1A; --cat-ink: #FFFFFF; }
+.frame[data-cat="installations"], .m-item[data-cat="installations"] { --cat: #C2ABE8; --cat-ink: #1A1A1A; }
 .frame[data-cat="film"],      .m-item[data-cat="film"]      { --cat: #FF6B1F; --cat-ink: #1A1A1A; }
 .num { transition: background 0.25s steps(3, end), color 0.25s steps(3, end); }
 .num.on { background: var(--cat, var(--ink)); color: var(--cat-ink, var(--bg)); }
@@ -949,7 +943,7 @@ body {
   .m-anno { font-size: 10px; letter-spacing: 0.1em; color: var(--muted); text-transform: uppercase; }
   .m-dot { width: 9px; height: 9px; border-radius: 50%; border: 1px solid var(--ink); display: inline-block; flex-shrink: 0; }
   .m-dot.narrative { background: #2A7BC5; } .m-dot.music { background: #5BBE5B; }
-  .m-dot.installations { background: var(--bg); } .m-dot.film { background: #FF6B1F; }
+  .m-dot.installations { background: #C2ABE8; } .m-dot.film { background: #FF6B1F; }
 
   .m-head { padding: 22px 16px 22px; }
   .m-head h1 { font-size: 44px; font-weight: 700; letter-spacing: -0.05em; line-height: 0.88; margin-top: 10px; text-transform: lowercase; }
