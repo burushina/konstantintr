@@ -221,8 +221,15 @@ body {
 
 /* ── screen player ── */
 .screen { position: relative; overflow: hidden; }
-.scr-video { position: absolute; inset: 0; z-index: 4; background: #000; display: none; flex-direction: column; }
-.screen.video-on .scr-video { display: flex; }
+.scr-video { position: absolute; z-index: 40; background: #000; display: none; flex-direction: column; border: 1px solid var(--ink); box-sizing: border-box; overflow: hidden; }
+.scr-video.on { display: flex; }
+.screen { transition: min-height 0.55s cubic-bezier(0.65, 0, 0.35, 1); }
+/* preview: still frame behind the screen text, muted motion on hover */
+.screen > *:not(.scr-peek) { position: relative; z-index: 1; }
+.screen.has-video { background-size: cover; background-position: center;
+  background-image: linear-gradient(rgba(10,16,13,0.62), rgba(10,16,13,0.9)), var(--poster); }
+.scr-peek { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; opacity: 0; transition: opacity 0.35s steps(4, end); pointer-events: none; }
+.screen.peeking .scr-peek { opacity: 0.3; }
 .scr-video video { flex: 1; min-height: 0; width: 100%; object-fit: contain; background: #000; cursor: pointer; }
 .scr-bar { display: flex; align-items: center; gap: 12px; padding: 6px 14px 8px; background: var(--screen-bg); font-size: 17px; color: var(--screen-glow); }
 .scr-btn { all: unset; cursor: pointer; color: var(--screen-pink); font-family: 'VT323', monospace; font-size: 22px; line-height: 1; padding: 0 2px; }
@@ -1069,6 +1076,17 @@ body {
     <span class="corner-tr"></span>
     <span class="corner-bl"></span>
 
+    <!-- video window: grows out of the screen to the video's proportions -->
+        <div class="scr-video" id="scr-video-wrap">
+          <video id="scr-video" playsinline preload="none"></video>
+          <div class="scr-bar">
+            <button type="button" class="scr-btn" id="scr-vplay" onclick="playerToggle()" aria-label="play / pause">▶</button>
+            <div class="scr-prog" id="scr-vprog" onclick="seekFromBar(event, this)"><i id="scr-vfill"></i></div>
+            <span class="scr-time" id="scr-vtime">0:00 / 0:00</span>
+            <button type="button" class="scr-btn" onclick="playerFull()" aria-label="fullscreen">⤢</button>
+            <button type="button" class="scr-btn" onclick="playerStop()" aria-label="close video">×</button>
+          </div>
+        </div>
     <div class="grid">
 
       <!-- SCREEN — shifted right -->
@@ -1084,17 +1102,7 @@ body {
             <span id="screen-time"></span>
           </div>
         </div>
-        <!-- screen player: video fills the screen while playing -->
-        <div class="scr-video" id="scr-video-wrap">
-          <video id="scr-video" playsinline preload="none"></video>
-          <div class="scr-bar">
-            <button type="button" class="scr-btn" id="scr-vplay" onclick="playerToggle()" aria-label="play / pause">▶</button>
-            <div class="scr-prog" id="scr-vprog" onclick="seekFromBar(event, this)"><i id="scr-vfill"></i></div>
-            <span class="scr-time" id="scr-vtime">0:00 / 0:00</span>
-            <button type="button" class="scr-btn" onclick="playerFull()" aria-label="fullscreen">⤢</button>
-            <button type="button" class="scr-btn" onclick="playerStop()" aria-label="close video">×</button>
-          </div>
-        </div>
+        <video class="scr-peek" id="scr-peek" muted playsinline loop preload="none" aria-hidden="true"></video>
         <audio id="scr-audio" preload="none"></audio>
         <div class="preview" id="preview" data-mode="video">
           <!-- AUDIO preview: waveform -->
@@ -1599,6 +1607,7 @@ function updatePreview(cat, cur) {
 
 // real media: players in the project panel; the screen shows the file and starts playback on click
 const PEAKS = {"media/2-million-dollars-1.mp4":[8,41,62,44,41,38,49,29,31,29,40,100,44,31,35,31,47,12,4,4,6,4,4,4,4,4,7,4,4,8,9,8,8,10,10,4,6,8,13,11,4,4,4,4,9,4,8,9,8,7,7,15,6,4,4,11,12,8,10,5,4,4,15,25],"media/2-million-dollars-2.mp4":[8,40,62,43,41,37,49,29,31,29,39,100,44,30,35,31,47,13,4,4,5,4,4,4,4,4,7,4,4,8,9,8,8,9,10,4,5,7,13,11,4,4,4,4,8,4,8,9,8,7,7,14,7,4,4,11,12,7,10,5,4,4,10,28],"media/balade-sonore-1.mp3":[23,74,36,18,13,82,42,41,26,76,62,49,91,55,67,59,27,36,82,59,81,62,43,100,86,34,28,30,21,23,27,41,68,38,4,52,58,24,52,17,32,54,79,28,92,70,20,93,51,38,67,72,24,53,71,38,26,36,20,11,7,4,4,4],"media/balade-sonore-2.mp3":[51,49,50,27,49,25,65,39,53,55,42,44,44,37,78,77,45,93,93,65,48,37,77,82,58,78,19,98,73,75,62,10,89,84,92,71,89,73,57,67,40,56,86,73,70,89,80,72,76,54,64,100,63,84,44,87,33,60,68,64,62,53,41,9],"media/exiles.mp4":[4,61,67,99,39,19,20,31,48,62,74,57,45,55,54,58,62,56,49,45,32,36,40,47,52,49,72,43,44,45,56,39,39,38,12,8,26,30,34,69,66,47,56,49,39,57,35,19,53,31,30,21,28,43,28,32,19,38,26,100,86,84,48,4],"media/fuga-24.mp4":[40,37,59,75,68,60,61,51,55,55,65,49,55,53,68,72,70,69,66,72,73,69,73,73,69,72,68,68,82,67,53,57,61,65,52,54,70,67,61,69,62,63,70,68,62,65,63,55,65,70,66,66,65,71,73,67,73,87,94,89,95,100,44,7],"media/last-disco.mp4":[57,82,76,76,83,71,82,66,84,63,84,62,87,67,84,56,100,68,92,73,96,81,87,86,83,89,78,71,61,67,51,92,78,99,64,98,68,96,72,95,76,91,86,86,85,83,90,66,88,67,89,66,90,64,90,61,90,59,88,33,8,7,6,4],"media/madrid.mp3":[95,41,78,47,57,57,46,22,61,40,50,51,60,64,62,68,62,78,55,93,75,76,52,81,46,47,33,73,48,100,49,50,71,31,60,74,77,43,68,61,98,52,50,46,54,54,62,55,66,44,84,57,74,36,89,73,72,43,66,45,56,63,86,41],"media/monsters.mp4":[82,53,49,73,61,69,100,71,94,64,78,68,81,73,81,65,54,52,60,57,68,74,84,73,77,56,41,52,84,76,84,72,59,50,50,60,54,63,94,75,89,51,77,100,86,97,83,87,88,88,94,87,97,92,60,87,83,91,59,63,38,77,58,47],"media/synesthetic-space.mp4":[39,63,98,71,73,79,67,56,35,29,30,29,39,32,30,67,69,80,61,60,68,65,74,28,24,29,20,21,19,41,37,34,31,35,39,69,58,87,76,90,41,73,65,70,84,94,100,53,51,69,62,55,43,41,37,21,58,46,43,49,44,43,39,61]};
+const ASPECT = {"media/2-million-dollars-1.mp4":2.6528,"media/2-million-dollars-2.mp4":2.6446,"media/exiles.mp4":1.7778,"media/fuga-24.mp4":1.7778,"media/last-disco.mp4":1.7778,"media/monsters.mp4":1.7778,"media/synesthetic-space.mp4":1.4815};
 const escH = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const mediaHTML = (list, title, mobile) => list.map(m => {
   const cap = m.label ? `<figcaption>${escH(m.label)}</figcaption>` : '';
@@ -1654,7 +1663,7 @@ function loadTrack(i) {
   const m = curMedia[i], v = document.getElementById('scr-video'), a = document.getElementById('scr-audio');
   v.removeAttribute('src'); a.removeAttribute('src'); v.load(); a.load();
   (isVid(m) ? v : a).src = m.src;
-  if (isVid(m) && m.poster) v.poster = m.poster; else v.removeAttribute('poster');
+  if (isVid(m) && m.poster) { v.poster = m.poster; document.getElementById('screen').style.setProperty('--poster', `url("${m.poster}")`); } else v.removeAttribute('poster');
   document.getElementById('now-file').textContent = m.src.split('/').pop();
   drawWave(PEAKS[m.src]);
   drawVu();
@@ -1663,6 +1672,10 @@ function setPlayer(list) {
   curMedia = list || [];
   const scr = document.getElementById('screen');
   scr.classList.toggle('has-media', !!curMedia.length);
+  const pv = curMedia.find(m => isVid(m) && m.poster);
+  scr.classList.toggle('has-video', !!pv);
+  if (pv) scr.style.setProperty('--poster', `url("${pv.poster}")`); else scr.style.removeProperty('--poster');
+  const pk = document.getElementById('scr-peek'); try { pk.pause(); } catch (e) {} pk.removeAttribute('src'); pk.load();
   if (curMedia.length) loadTrack(0);
   else { playerStop(true); drawWave(null); drawVu(); document.getElementById('now-file').textContent = 'now_playing.mov'; }
 }
@@ -1670,14 +1683,74 @@ function playerToggle() {
   if (!curMedia.length) return;
   const el = activeEl();
   if (el.paused) {
-    if (isVid(curMedia[curTrack])) document.getElementById('screen').classList.add('video-on');
-    el.play();
+    if (isVid(curMedia[curTrack])) openVideoWindow();
+    el.play().catch(() => {});
   } else el.pause();
 }
 function playerTrack(i) { if (i !== curTrack) { loadTrack(i); playerToggle(); } }
+// video window: opens from the screen and resizes to the video's aspect ratio
+let vwOpen = false;
+function vwTarget() {
+  const dev = document.querySelector('.device').getBoundingClientRect();
+  const scr = document.getElementById('screen').getBoundingClientRect();
+  const m = curMedia[curTrack], ar = (m && ASPECT[m.src]) || 16 / 9, BAR = 38;
+  const maxH = Math.max(scr.height, window.innerHeight * 0.78);
+  let w = dev.width, h = w / ar + BAR;
+  if (h > maxH) { h = maxH; w = (h - BAR) * ar; }
+  return { left: 0, top: scr.top - dev.top, width: Math.round(w), height: Math.round(h) };
+}
+function screenBox() {
+  const dev = document.querySelector('.device').getBoundingClientRect(), r = document.getElementById('screen').getBoundingClientRect();
+  return { left: r.left - dev.left, top: r.top - dev.top, width: r.width, height: r.height };
+}
+const px = o => ({ left: o.left + 'px', top: o.top + 'px', width: o.width + 'px', height: o.height + 'px' });
+function openVideoWindow() {
+  const wrap = document.getElementById('scr-video-wrap'), scr = document.getElementById('screen');
+  scr.classList.remove('peeking'); const pk = document.getElementById('scr-peek'); try { pk.pause(); } catch (e) {}
+  const from = screenBox(), to = vwTarget();
+  scr.style.minHeight = to.height + 'px';                // the rows below move down to make room
+  Object.assign(wrap.style, px(to));
+  wrap.classList.add('on');
+  if (!vwOpen && !calm()) {
+    clunk('open');
+    wrap.animate([{ ...px(from) }, { ...px({ ...to, height: to.height + 10 }), offset: 0.8 }, { ...px(to) }],
+      { duration: 560, easing: 'cubic-bezier(0.65, 0, 0.35, 1)' });
+  }
+  vwOpen = true;
+}
+function closeVideoWindow(instant) {
+  const wrap = document.getElementById('scr-video-wrap'), scr = document.getElementById('screen');
+  if (!vwOpen) return;
+  vwOpen = false;
+  scr.style.minHeight = '';
+  if (instant || calm()) { wrap.classList.remove('on'); return; }
+  clunk('close');
+  const from = { left: parseFloat(wrap.style.left), top: parseFloat(wrap.style.top), width: parseFloat(wrap.style.width), height: parseFloat(wrap.style.height) };
+  requestAnimationFrame(() => {
+    const to = screenBox();
+    const a = wrap.animate([{ ...px(from) }, { ...px(to) }], { duration: 420, easing: 'cubic-bezier(0.55, 0, 0.75, 0.3)', fill: 'forwards' });
+    a.onfinish = () => { if (!vwOpen) wrap.classList.remove('on'); a.cancel(); };
+  });
+}
+window.addEventListener('resize', () => { if (vwOpen) { const to = vwTarget(); document.getElementById('screen').style.minHeight = to.height + 'px'; Object.assign(document.getElementById('scr-video-wrap').style, px(to)); } });
+// preview on hover: muted motion behind the screen text
+(() => {
+  const scr = document.getElementById('screen'), pk = document.getElementById('scr-peek');
+  scr.addEventListener('mouseenter', () => {
+    const m = curMedia[curTrack];
+    if (!m || !isVid(m) || vwOpen || !document.getElementById('scr-video').paused || calm()) return;
+    if (pk.getAttribute('src') !== m.src) {
+      pk.src = m.src;
+      pk.addEventListener('loadedmetadata', () => { pk.currentTime = pk.duration * 0.3; }, { once: true });
+    }
+    scr.classList.add('peeking'); pk.play().catch(() => {});
+  });
+  scr.addEventListener('mouseleave', () => { scr.classList.remove('peeking'); try { pk.pause(); } catch (e) {} });
+})();
 function playerStop(silent) {
-  ['scr-video', 'scr-audio'].forEach(id => { const m = document.getElementById(id); try { m.pause(); } catch (e) {} });
-  document.getElementById('screen').classList.remove('video-on', 'playing');
+  ['scr-video', 'scr-audio', 'scr-peek'].forEach(id => { const m = document.getElementById(id); try { m.pause(); } catch (e) {} });
+  closeVideoWindow(silent);
+  document.getElementById('screen').classList.remove('video-on', 'playing', 'peeking');
   if (!silent) paintProgress();
 }
 function playerFull() { const v = document.getElementById('scr-video'); (v.requestFullscreen || v.webkitEnterFullscreen || (() => {})).call(v); }
@@ -1699,11 +1772,19 @@ function seekFromBar(ev, el) { const r = el.getBoundingClientRect(); seekTo((ev.
 });
 document.getElementById('scr-video').addEventListener('click', playerToggle);
 document.addEventListener('keydown', e => {
-  if (e.code !== 'Space' || /input|textarea|button/i.test(e.target.tagName) || !curMedia.length) return;
+  if (e.code !== 'Space' || /input|textarea|select/i.test(e.target.tagName) || e.target.closest('.modal-overlay, .info-menu') || !curMedia.length) return;
   e.preventDefault(); playerToggle();
 });
-document.addEventListener('play', e => {           // only one thing plays at a time
-  document.querySelectorAll('video, audio').forEach(m => { if (m !== e.target) m.pause(); });
+document.addEventListener('keyup', e => {   // stop a focused button from firing a second toggle on space-up
+  if (e.code === 'Space' && curMedia.length && e.target.tagName === 'BUTTON' && !e.target.closest('.modal-overlay, .info-menu')) e.preventDefault();
+});
+document.addEventListener('play', e => {           // only one thing plays at a time (the muted hover preview doesn't count)
+  if (e.target.id === 'scr-peek') {
+    if (vwOpen || !document.getElementById('scr-video').paused || !document.getElementById('screen').classList.contains('peeking')) e.target.pause();
+    return;
+  }
+  document.querySelectorAll('video, audio').forEach(m => { if (m !== e.target && m.id !== 'scr-peek') m.pause(); });
+  const pk = document.getElementById('scr-peek'); if (pk) { pk.pause(); document.getElementById('screen').classList.remove('peeking'); }
 }, true);
 
 function setScheme(src, name) {
