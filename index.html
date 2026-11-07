@@ -35,9 +35,11 @@ html, body {
   font-feature-settings: 'ss01';
 }
 
+html, body { overscroll-behavior: none; }   /* no rubber-band bounce showing white past the edges */
 body {
   padding: 24px;
   min-height: 100vh;
+  min-height: 100dvh;
 }
 
 .frame { max-width: none; margin: 0 auto; position: relative; }
@@ -1976,7 +1978,7 @@ function fitKeyboard() {
     const info = document.getElementById('info-block'), ctl = document.querySelector('.ctl');
     top -= info.offsetHeight + (ctl ? 62 - ctl.offsetHeight : 0);
   }
-  const free = window.innerHeight - top - 24;           // 24 = page padding
+  const free = Math.floor(window.innerHeight - top - 24) - 2;   // 24 = page padding, 2 = frame borders / rounding
   kb.style.height = Math.max(150, Math.min(free, 520)) + 'px';
 }
 window.addEventListener('resize', fitKeyboard);
