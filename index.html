@@ -425,6 +425,25 @@ body {
 }
 
 /* Buttons (function + mode) */
+/* info button + small mechanical drop-down */
+.info-btn { overflow: visible; z-index: 5; }
+.info-btn .corner { background: transparent; border: 1px solid var(--ink); }
+.info-btn.on .corner { border-color: var(--bg); }
+.info-menu {
+  position: absolute; top: calc(100% + 1px); left: -1px; min-width: 190px; z-index: 30;
+  display: none; flex-direction: column; background: var(--bg);
+  border: 1px solid var(--ink); color: var(--ink);
+}
+.info-btn.open .info-menu { display: flex; animation: menu-drop 0.28s steps(4, end); transform-origin: top; }
+@keyframes menu-drop { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0 0 0 0); } }
+.info-menu > * {
+  all: unset; box-sizing: border-box; display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 12px; font: inherit; font-size: 13px; cursor: pointer; border-bottom: 1px solid var(--ink);
+  background: var(--bg); color: var(--ink);
+}
+.info-menu > *:last-child { border-bottom: none; }
+.info-menu > *:hover { background: var(--ink); color: var(--bg); }
+.info-menu .cv-arrow { color: #FF6B1F; }
 .btn {
   cursor: pointer;
   user-select: none;
@@ -1015,11 +1034,8 @@ body {
 
     <div class="grid">
 
-      <!-- Speaker grille (top-left, decorative) -->
-      <div class="cell speaker span-2 row-3"></div>
-
       <!-- SCREEN — shifted right -->
-      <div class="cell screen span-5 row-3" id="screen">
+      <div class="cell screen span-7 row-3" id="screen">
         <div>
           <div class="row row-status">
             <span><span class="blink">▶</span> now_playing.mov</span>
@@ -1105,38 +1121,27 @@ body {
       <div class="cell num wide span-3" data-idx="2" onclick="setIndex(2)"><span class="anno"></span><span class="num-big"></span><span class="num-meta"></span></div>
       <div class="cell num wide span-3" data-idx="3" onclick="setIndex(3)"><span class="anno"></span><span class="num-big"></span><span class="num-meta"></span></div>
 
-      <!-- TRANSPORT (rw/play/stop) + SECTIONS (main/work/about/contact) + CV + MODES -->
-      <div class="cell ctl toy tr" id="btn-play" onclick="togglePlay()">
-        <span class="glyph">▶</span><span class="micro">play</span>
+      <!-- CONTROL ROW: one small menu button (about / contact / cv) + sound modes -->
+      <div class="cell ctl btn fn t3 info-btn" id="info-btn" onclick="toggleMenu(event)" aria-haspopup="true" aria-expanded="false">
+        <span class="corner"></span><span class="lbl">info</span>
+        <div class="info-menu" id="info-menu" role="menu">
+          <button type="button" role="menuitem" onclick="menuGo(event, 'about')">about</button>
+          <button type="button" role="menuitem" onclick="menuGo(event, 'contact')">contact</button>
+          <a role="menuitem" id="btn-cv" href="#" target="_blank" rel="noopener" onclick="menuGo(event, 'cv', this)">cv <span class="cv-arrow">↓</span></a>
+        </div>
       </div>
-      <div class="cell ctl toy aux span-3" onclick="shuffle(this)">
-        <span class="lbl-md">↻ shuffle</span>
-      </div>
+      <div class="cell ctl toy fill-dots span-3" aria-hidden="true"></div>
 
-      <div class="cell ctl btn fn t2" onclick="setSection('work', this)">
-        <span class="corner"></span><span class="lbl">work</span>
-      </div>
-      <div class="cell ctl btn fn t3" onclick="setSection('about', this)">
-        <span class="corner"></span><span class="lbl">about</span>
-      </div>
-      <div class="cell ctl btn fn t4" onclick="openContact()">
-        <span class="corner"></span><span class="lbl">contact</span>
-      </div>
-
-      <a class="cell ctl tr fav" id="btn-cv" href="#" target="_blank" rel="noopener" onclick="bumpCv(event, this)">
-        <span class="glyph" id="cv-glyph">↓</span><span class="micro">cv</span>
-      </a>
-
-      <div class="cell ctl toy btn mode" onclick="setMode('synth', this)">
+      <div class="cell ctl toy btn mode span-2" onclick="setMode('synth', this)">
         <span class="lbl">synth</span>
       </div>
-      <div class="cell ctl toy btn mode" onclick="setMode('drum', this)">
+      <div class="cell ctl toy btn mode span-2" onclick="setMode('drum', this)">
         <span class="lbl">drum</span>
       </div>
-      <div class="cell ctl toy btn mode on" onclick="setMode('pad', this)">
+      <div class="cell ctl toy btn mode span-2 on" onclick="setMode('pad', this)">
         <span class="lbl">pad</span>
       </div>
-      <div class="cell ctl toy btn mode" onclick="setMode('pluck', this)">
+      <div class="cell ctl toy btn mode span-2" onclick="setMode('pluck', this)">
         <span class="lbl">pluck</span>
       </div>
 
@@ -1891,7 +1896,7 @@ function animateBars() {
 // sections / modes
 function setSection(id, el) {
   document.querySelectorAll('.btn.fn').forEach(f => f.classList.remove('on'));
-  el.classList.add('on');
+  if (el) el.classList.add('on');
   activeSection = id;
   document.getElementById('screen-mode').textContent = currentTimbre;
   render();
@@ -1902,6 +1907,26 @@ function setMode(id, el) {
   currentTimbre = id;
   document.getElementById('screen-mode').textContent = id;
 }
+
+// info menu: about / contact / cv
+function closeMenu() {
+  const b = document.getElementById('info-btn');
+  b.classList.remove('open'); b.setAttribute('aria-expanded', 'false');
+}
+function toggleMenu(ev) {
+  if (ev.target.closest('.info-menu')) return;
+  const b = document.getElementById('info-btn'), open = !b.classList.contains('open');
+  b.classList.toggle('open', open); b.setAttribute('aria-expanded', String(open));
+  if (open) clunk('open');
+}
+function menuGo(ev, what, el) {
+  ev.stopPropagation();
+  closeMenu();
+  if (what === 'about') setSection('about', document.getElementById('info-btn'));
+  else if (what === 'contact') openContact();
+  else if (what === 'cv' && el.getAttribute('href') === '#') ev.preventDefault();   // placeholder until the real CV link
+}
+document.addEventListener('click', e => { if (!e.target.closest('#info-btn')) closeMenu(); });
 
 // contact modal
 function openContact() {
@@ -1928,7 +1953,7 @@ function submitContact(ev) {
 }
 // ESC to close
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') closeContact();
+  if (e.key === 'Escape') { closeContact(); closeMenu(); }
 });
 
 // keyboard stretches so the synth fills the screen height (desktop only)
