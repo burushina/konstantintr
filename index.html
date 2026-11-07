@@ -922,22 +922,32 @@ body {
 .bio-cell p { font-size: 15px; line-height: 1.5; }
 
 @media (min-width: 881px) {
-  .frame {
-    display: grid; align-items: start;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 0fr); column-gap: 0;
-    transition: grid-template-columns 0.45s cubic-bezier(0.2, 0.7, 0.2, 1), column-gap 0.45s cubic-bezier(0.2, 0.7, 0.2, 1);
+  /* project opens inside the device: info panel between controls and keyboard, keyboard folds down */
+  .project-info {
+    grid-column: span 12; margin-top: 0; padding: 26px 28px 30px;
+    grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 28px; row-gap: 18px;
+    animation: info-open 0.4s cubic-bezier(0.2, 0.7, 0.2, 1);
   }
-  .frame.has-info { grid-template-columns: minmax(0, 8fr) minmax(0, 4fr); column-gap: 36px; }
-  .frame:not(.has-info) .project-info { overflow: hidden; visibility: hidden; }
-  .project-info { margin-top: 0; position: sticky; top: 24px; grid-template-columns: 1fr; row-gap: 14px; }
-  .project-info h2 { font-size: clamp(30px, 3vw, 46px); }
-  .info-credits { grid-template-columns: 1fr 1fr; }
-  .project-info h2, .info-credits, .info-desc, .info-side { grid-column: 1 / -1; }
-  .info-desc { max-width: none; }
+  .frame:not(.has-info) .project-info { display: none; }
+  @keyframes info-open { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
+  .project-info h2 { grid-column: 1 / -1; font-size: clamp(34px, 3.6vw, 56px); }
+  .info-credits { grid-column: 1 / -1; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .info-desc { grid-column: 1 / 8; grid-row: 3 / span 2; max-width: 640px; font-size: 14px; }
+  .info-side { grid-column: 8 / -1; grid-row: 3; }
+  .info-scheme { grid-column: 8 / -1; grid-row: 4; }
+  .project-info .info-close {
+    position: absolute; top: 14px; right: 16px; border: 1px solid var(--ink); background: var(--bg);
+    font: inherit; font-size: 11px; letter-spacing: 0.06em; padding: 4px 8px; cursor: pointer;
+  }
+  .project-info .info-close:hover { background: var(--ink); color: var(--bg); }
+  .project-info { position: relative; }
+  .keyboard { transition: height 0.4s cubic-bezier(0.2, 0.7, 0.2, 1); }
   .screen h2 { font-size: clamp(36px, 4.2vw, 68px); }
   .enc .lbl-name { font-size: 11px; }
   .num.wide .num-big { font-size: 18px; }
 }
+.info-close { display: none; }
+@media (min-width: 881px) { .info-close { display: block; } }
 </style>
 </head>
 <body>
@@ -1075,6 +1085,29 @@ body {
         <span class="lbl">pluck</span>
       </div>
 
+
+      <!-- PROJECT INFO — opens inside the synth, between controls and keyboard -->
+      <section class="cell project-info" id="info-block">
+        <button class="info-close" type="button" onclick="closeInfo()" aria-label="close project">close ×</button>
+      <h2 id="info-title">konstantin troitsky</h2>
+
+        <div class="info-credits">
+          <div class="credit"><span class="anno-k">year</span><span class="val" id="info-year"></span></div>
+          <div class="credit"><span class="anno-k">role</span><span class="val" id="info-role">sound designer · audio engineer</span></div>
+          <div class="credit"><span class="anno-k">context</span><span class="val" id="info-client">audio walks · podcasts · installations · film</span></div>
+          <div class="credit"><span class="anno-k">format</span><span class="val" id="info-dur">EN · FR · RU</span></div>
+        </div>
+
+        <p class="info-desc" id="info-desc">Sound designer and audio engineer based near Paris. I build atmosphere, immersion and story through sound — for audio walks, podcasts, installations and film.</p>
+
+        <a class="info-scheme" id="info-scheme" target="_blank" rel="noopener" hidden><img alt=""></a>
+
+        <div class="info-side">
+          <div id="info-extra" class="info-extra"></div>
+          <span class="k">tools</span>
+          <span id="info-tools">logic pro · reaper · izotope rx · ableton live · op-1</span>
+        </div>
+      </section>
       <!-- KEYBOARD: proper piano with overlapping black keys -->
       <div class="cell keyboard" id="keyboard">
         <div class="white-keys" id="white-keys"></div>
@@ -1084,27 +1117,6 @@ body {
     </div>
   </div>
 
-  <!-- ────── PROJECT INFO (below device) ────── -->
-  <section class="project-info" id="info-block">
-    <h2 id="info-title">konstantin troitsky</h2>
-
-    <div class="info-credits">
-      <div class="credit"><span class="anno-k">year</span><span class="val" id="info-year"></span></div>
-      <div class="credit"><span class="anno-k">role</span><span class="val" id="info-role">sound designer · audio engineer</span></div>
-      <div class="credit"><span class="anno-k">context</span><span class="val" id="info-client">audio walks · podcasts · installations · film</span></div>
-      <div class="credit"><span class="anno-k">format</span><span class="val" id="info-dur">EN · FR · RU</span></div>
-    </div>
-
-    <p class="info-desc" id="info-desc">Sound designer and audio engineer based near Paris. I build atmosphere, immersion and story through sound — for audio walks, podcasts, installations and film.</p>
-
-    <a class="info-scheme" id="info-scheme" target="_blank" rel="noopener" hidden><img alt=""></a>
-
-    <div class="info-side">
-      <div id="info-extra" class="info-extra"></div>
-      <span class="k">tools</span>
-      <span id="info-tools">logic pro · reaper · izotope rx · ableton live · op-1</span>
-    </div>
-  </section>
 
   <!-- ────── CONTACT MODAL ────── -->
   <div class="modal-overlay" id="contact-modal" onclick="closeContact(event)">
@@ -1538,6 +1550,7 @@ function render() {
   }
   document.getElementById('info-block').style.visibility = activeSection === 'main' ? 'hidden' : '';
   document.querySelector('.frame').classList.toggle('has-info', activeSection !== 'main');
+  if (typeof fitKeyboard === 'function') fitKeyboard();
   if (activeSection === 'main' || activeSection === 'about') {
     renderSectionInfo(activeSection);
     // still update encoder rest positions
@@ -1783,6 +1796,7 @@ function fitKeyboard() {
   const kb = document.getElementById('keyboard');
   if (!kb) return;
   if (window.innerWidth <= 880) { kb.style.height = ''; return; }
+  if (document.querySelector('.frame').classList.contains('has-info')) { kb.style.height = '44px'; return; }
   kb.style.height = '150px';
   const top = kb.getBoundingClientRect().top + window.scrollY;
   const free = window.innerHeight - top - 24;           // 24 = page padding
@@ -1790,6 +1804,12 @@ function fitKeyboard() {
 }
 window.addEventListener('resize', fitKeyboard);
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitKeyboard);
+
+function closeInfo() {
+  activeSection = 'main';
+  document.querySelectorAll('.btn.fn').forEach(f => f.classList.remove('on'));
+  render();
+}
 
 // ───────── init ──────────
 function applyHash() {
