@@ -926,22 +926,46 @@ body {
   .project-info {
     grid-column: span 12; margin-top: 0; padding: 26px 28px 30px;
     grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 28px; row-gap: 18px;
-    animation: info-open 0.4s cubic-bezier(0.2, 0.7, 0.2, 1);
+    overflow: hidden;
   }
   .frame:not(.has-info) .project-info { display: none; }
-  @keyframes info-open { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
+
+  /* ── mechanics: content arrives part by part, like a device powering up ── */
+  .project-info.reveal h2            { animation: m-type 0.5s steps(14, end) 0.14s both; }
+  .project-info.reveal .info-credits { animation: m-rule 0.38s cubic-bezier(0.7, 0, 0.3, 1) 0.2s both; }
+  .project-info.reveal .credit       { animation: m-click 0.24s steps(3, end) both; }
+  .project-info.reveal .credit:nth-child(1) { animation-delay: 0.3s; }
+  .project-info.reveal .credit:nth-child(2) { animation-delay: 0.36s; }
+  .project-info.reveal .credit:nth-child(3) { animation-delay: 0.42s; }
+  .project-info.reveal .credit:nth-child(4) { animation-delay: 0.48s; }
+  .project-info.reveal .info-desc    { animation: m-feed 0.6s cubic-bezier(0.3, 0, 0.2, 1) 0.42s both; }
+  .project-info.reveal .info-side    { animation: m-slide 0.32s steps(4, end) 0.5s both; }
+  .project-info.reveal .info-scheme  { animation: m-insert 0.55s cubic-bezier(0.34, 1.45, 0.64, 1) 0.56s both; }
+  .project-info.reveal .info-close   { animation: m-click 0.2s steps(2, end) 0.6s both; }
+  .project-info.leaving > *          { animation: m-leave 0.16s steps(3, end) both; }
+  @keyframes m-type   { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+  @keyframes m-rule   { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+  @keyframes m-click  { from { opacity: 0; transform: translateY(-9px); } to { opacity: 1; transform: none; } }
+  @keyframes m-feed   { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0 0 0 0); } }
+  @keyframes m-slide  { from { opacity: 0; transform: translateX(14px); } to { opacity: 1; transform: none; } }
+  @keyframes m-insert { from { opacity: 0; transform: translateX(48px) rotate(1.5deg); } to { opacity: 1; transform: none; } }
+  @keyframes m-leave  { to { opacity: 0; transform: translateX(-16px); } }
   .project-info h2 { grid-column: 1 / -1; font-size: clamp(34px, 3.6vw, 56px); }
   .info-credits { grid-column: 1 / -1; grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .info-desc { grid-column: 1 / 8; grid-row: 3 / span 2; max-width: 640px; font-size: 14px; }
   .info-side { grid-column: 8 / -1; grid-row: 3; }
   .info-scheme { grid-column: 8 / -1; grid-row: 4; }
   .project-info .info-close {
-    position: absolute; top: 14px; right: 16px; border: 1px solid var(--ink); background: var(--bg);
+    position: absolute; top: 14px; right: 16px; z-index: 3; border: 1px solid var(--ink); background: var(--bg);
     font: inherit; font-size: 11px; letter-spacing: 0.06em; padding: 4px 8px; cursor: pointer;
   }
   .project-info .info-close:hover { background: var(--ink); color: var(--bg); }
   .project-info { position: relative; }
-  .keyboard { transition: height 0.4s cubic-bezier(0.2, 0.7, 0.2, 1); }
+  .keyboard { transition: height 0.5s cubic-bezier(0.34, 1.35, 0.64, 1); }
+}
+@media (min-width: 881px) and (prefers-reduced-motion: reduce) {
+  .project-info.reveal *, .project-info.leaving > * { animation: none !important; }
+  .keyboard { transition: none; }
   .screen h2 { font-size: clamp(36px, 4.2vw, 68px); }
   .enc .lbl-name { font-size: 11px; }
   .num.wide .num-big { font-size: 18px; }
@@ -1542,13 +1566,93 @@ function updateEncoderDials() {
   });
 }
 
+// ───────── mechanical open / close / switch of the project panel (desktop) ──────────
+let infoToken = 0;
+const isDesk = () => window.matchMedia('(min-width: 881px)').matches;
+const calm = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+function clunk(kind) {            // short mechanical click, only after the visitor has interacted
+  if (!(navigator.userActivation && navigator.userActivation.hasBeenActive)) return;
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    const t = audioCtx.currentTime, sr = audioCtx.sampleRate;
+    const buf = audioCtx.createBuffer(1, Math.floor(sr * 0.05), sr), d = buf.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / d.length, 4);
+    const n = audioCtx.createBufferSource(); n.buffer = buf;
+    const bp = audioCtx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = kind === 'close' ? 1300 : 2200; bp.Q.value = 1.2;
+    const g = audioCtx.createGain(); g.gain.value = 0.16;
+    n.connect(bp).connect(g).connect(audioCtx.destination); n.start(t);
+    const o = audioCtx.createOscillator(), og = audioCtx.createGain();
+    o.frequency.setValueAtTime(kind === 'close' ? 70 : 110, t); o.frequency.exponentialRampToValueAtTime(45, t + 0.09);
+    og.gain.setValueAtTime(0.12, t); og.gain.exponentialRampToValueAtTime(0.0001, t + 0.1);
+    o.connect(og).connect(audioCtx.destination); o.start(t); o.stop(t + 0.11);
+  } catch (e) {}
+}
+function restartReveal(info) { info.classList.remove('reveal', 'leaving'); void info.offsetWidth; info.classList.add('reveal'); }
 function render() {
+  const frame = document.querySelector('.frame'), info = document.getElementById('info-block');
+  const wasOpen = frame.classList.contains('has-info') && !frame.classList.contains('closing');
+  const willOpen = activeSection !== 'main';
+  const prevH = info.offsetHeight, prevHTML = info.innerHTML;
+  const token = ++infoToken;
+  info.getAnimations().forEach(a => a.cancel());
+  info.style.height = '';
+  frame.classList.remove('closing');
+  renderCore();
+  const newHTML = info.innerHTML;
+  if (!isDesk() || calm()) { if (!willOpen) frame.classList.remove('has-info'); info.classList.remove('leaving'); return; }
+  const H = info.offsetHeight;
+  const pads = { paddingTop: '', paddingBottom: '' };
+  if (!wasOpen && willOpen) {                       // OPEN — drawer slides out, keyboard folds
+    clunk('open');
+    restartReveal(info);
+    info.animate([
+      { height: '0px', paddingTop: '0px', paddingBottom: '0px' },
+      { height: (H + 14) + 'px', offset: 0.68, easing: 'cubic-bezier(0.3, 0, 0.6, 1)' },
+      { height: (H - 5) + 'px', offset: 0.86 },
+      { height: H + 'px', ...pads }
+    ], { duration: 560, easing: 'cubic-bezier(0.65, 0, 0.35, 1)' });
+  } else if (wasOpen && !willOpen) {                // CLOSE — content clears, drawer slides back, keyboard unfolds
+    clunk('close');
+    info.innerHTML = prevHTML;
+    info.classList.remove('reveal'); info.classList.add('leaving');
+    frame.classList.add('has-info', 'closing');
+    fitKeyboard();
+    const a = info.animate([
+      { height: prevH + 'px' },
+      { height: (prevH + 10) + 'px', offset: 0.25 },
+      { height: '0px', paddingTop: '0px', paddingBottom: '0px' }
+    ], { duration: 420, delay: 120, easing: 'cubic-bezier(0.55, 0, 0.75, 0.3)', fill: 'forwards' });
+    a.onfinish = () => {
+      if (token !== infoToken) return;
+      frame.classList.remove('has-info', 'closing');
+      info.classList.remove('leaving'); a.cancel();
+    };
+  } else if (wasOpen && willOpen && newHTML !== prevHTML) {   // SWITCH — tape change
+    clunk('open');
+    info.innerHTML = prevHTML;
+    info.classList.remove('reveal'); info.classList.add('leaving');
+    info.style.height = prevH + 'px';
+    setTimeout(() => {
+      if (token !== infoToken) return;
+      info.style.height = '';
+      info.innerHTML = newHTML;
+      const H2 = info.offsetHeight;
+      restartReveal(info);
+      info.animate([
+        { height: prevH + 'px' },
+        { height: (H2 + (H2 > prevH ? 8 : -8)) + 'px', offset: 0.75 },
+        { height: H2 + 'px' }
+      ], { duration: 380, easing: 'cubic-bezier(0.5, 0, 0.3, 1)' });
+    }, 170);
+  }
+}
+function renderCore() {
   pushHistory();
   if (window.innerWidth > 880) {
     setHash(activeSection === 'work' ? (PROJECTS[activeCat][activeIdx] || {}).slug
           : activeSection === 'about' ? 'about' : '');
   }
-  document.getElementById('info-block').style.visibility = activeSection === 'main' ? 'hidden' : '';
   document.querySelector('.frame').classList.toggle('has-info', activeSection !== 'main');
   if (typeof fitKeyboard === 'function') fitKeyboard();
   if (activeSection === 'main' || activeSection === 'about') {
@@ -1796,7 +1900,8 @@ function fitKeyboard() {
   const kb = document.getElementById('keyboard');
   if (!kb) return;
   if (window.innerWidth <= 880) { kb.style.height = ''; return; }
-  if (document.querySelector('.frame').classList.contains('has-info')) { kb.style.height = '44px'; return; }
+  const fr = document.querySelector('.frame');
+  if (fr.classList.contains('has-info') && !fr.classList.contains('closing')) { kb.style.height = '44px'; return; }
   kb.style.height = '150px';
   const top = kb.getBoundingClientRect().top + window.scrollY;
   const free = window.innerHeight - top - 24;           // 24 = page padding
