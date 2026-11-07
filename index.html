@@ -957,7 +957,7 @@ body {
           </div>
           <h2 id="screen-title">SOUND DESIGNER</h2>
           <div class="row row-meta">
-            <span id="screen-cat">all · 9 works</span>
+            <span id="screen-cat">all · 12 works</span>
             <span id="screen-time"></span>
           </div>
         </div>
@@ -1008,7 +1008,7 @@ body {
         <span class="anno">enc.2</span>
         <div class="dial-big"></div>
         <span class="lbl-name">music</span>
-        <span class="count-color">2 works</span>
+        <span class="count-color">3 works</span>
       </div>
       <div class="cell enc enc-3" id="enc-3" data-cat="installations" onclick="setCategory('installations', this)">
         <span class="anno">enc.3</span>
@@ -1020,7 +1020,7 @@ body {
         <span class="anno">enc.4</span>
         <div class="dial-big"></div>
         <span class="lbl-name">film</span>
-        <span class="count-color">2 works</span>
+        <span class="count-color">4 works</span>
       </div>
       <div class="cell row-3 fill-dots" aria-hidden="true"></div>
 
@@ -1030,9 +1030,10 @@ body {
       <!-- row 3 right side (cols 8-11): decorative fills -->
 
       <!-- NUMBER SELECTOR ROW (12 cells) -->
-      <div class="cell num wide span-4" data-idx="0" onclick="setIndex(0)"><span class="anno"></span><span class="num-big"></span><span class="num-meta"></span></div>
-      <div class="cell num wide span-4" data-idx="1" onclick="setIndex(1)"><span class="anno"></span><span class="num-big"></span><span class="num-meta"></span></div>
-      <div class="cell num wide span-4" data-idx="2" onclick="setIndex(2)"><span class="anno"></span><span class="num-big"></span><span class="num-meta"></span></div>
+      <div class="cell num wide span-3" data-idx="0" onclick="setIndex(0)"><span class="anno"></span><span class="num-big"></span><span class="num-meta"></span></div>
+      <div class="cell num wide span-3" data-idx="1" onclick="setIndex(1)"><span class="anno"></span><span class="num-big"></span><span class="num-meta"></span></div>
+      <div class="cell num wide span-3" data-idx="2" onclick="setIndex(2)"><span class="anno"></span><span class="num-big"></span><span class="num-meta"></span></div>
+      <div class="cell num wide span-3" data-idx="3" onclick="setIndex(3)"><span class="anno"></span><span class="num-big"></span><span class="num-meta"></span></div>
 
       <!-- TRANSPORT (rw/play/stop) + SECTIONS (main/work/about/contact) + CV + MODES -->
       <div class="cell tr" id="btn-play" onclick="togglePlay()">
@@ -1158,7 +1159,7 @@ body {
 const SITE_PROJECTS = [
     { cat: 'narrative', title: 'Balade sonore à Crouy-sur-Ourcq', screen: 'CROUY', year: '2026', type: 'immersive audio walk',
       org: 'Mairie de Crouy-sur-Ourcq / Médiévales du Houssoy',
-      desc: ['An immersive audio walk through a medieval village in Seine-et-Marne, guided by the White Lady of local legend across three sites: the church, the market square and the keep. Free and online year-round via QR codes.'],
+      desc: ['An immersive audio walk through a medieval village in Seine-et-Marne, guided by the White Lady of local legend across three sites: the church, the market square and the keep. The voices belong to local residents, recorded on location. Free and online year-round via QR codes.'],
       info: [['role', 'concept & script · field recording · organ recording in the church · voice recording, editing & mix · sound design · final mix'],
              ['co-author', 'Polina Burushina'], ['legend', 'Martine Godé'], ['tools', 'logic pro · izotope rx · oktava mk-012']] },
     { cat: 'narrative', title: 'Exiles', screen: 'EXILES', year: '2023', type: 'audio documentary',
@@ -1175,6 +1176,9 @@ const SITE_PROJECTS = [
       desc: ['Original music for the closing film of a V-A-C workshop on the body and movement. Following the curators’ idea of showing the “reverse side”, a specially recorded Queen of the Night aria was cut into reversed samples.',
              'The techno-leaning pulse works as a counterpoint to the participants’ arrhythmic, writhing movements on screen.'],
       info: [['role', 'composition · sampling & sound design · mix'], ['tools', 'logic pro']] },
+    { cat: 'music', title: 'Last Disco', screen: 'LAST DISCO', year: '2022', type: 'music video', org: 'Supercomfort · dir. Dina Davydova',
+      desc: ['A music video conceived as an homage to the American slashers of the 1960s–80s: a school disco, a group of teenagers, a series of murders. I wrote the end-credits music — hip-hop with a slasher edge — plus sound design accents for the video.'],
+      info: [['role', 'end-credits music & mix · sound design'], ['tools', 'logic pro']] },
     { cat: 'music', title: 'FUGA 24', screen: 'FUGA 24', year: '2023', type: 'audio triptych', org: 'TOLK, independent Russian-language media',
       desc: ['A three-part audio piece marking one year since the start of the war in Ukraine (24 February 2023). The title holds three meanings at once: the fugue as musical form, fuga as flight, and the fugue state — a break from oneself.',
              'Documentary interviews, media archive and original music are woven together in three movements.'],
@@ -1189,6 +1193,16 @@ const SITE_PROJECTS = [
              'Shown in a light-sealed black cube of about 1.8 × 1.8 m, with projection, four-channel sound, cushions and incense for full immersion.'],
       info: [['role', 'concept · live improvisation & sound design · editing · 4-channel spatial mix · technical realisation (cube, projection, sound system)'],
              ['visuals', 'Polina Burushina'], ['tools', 'logic pro · dearvr · teenage engineering op-1 · soma ether 2 · guitar · field recordings']] },
+    { cat: 'film', title: 'The Tale of the Three Brothers', screen: '3 BROTHERS', year: '2025', type: 'sound redesign',
+      org: 'a reimagining of the original sound for the animated sequence in Harry Potter and the Deathly Hallows: Part 1',
+      desc: ['The original sequence relies on voice-over and minimal sound design. With the narration removed, the story is carried by sound alone. Death’s movements are designed from my own recorded and processed breath and voice.',
+             'The encounter with Death is a dense, enveloping ambience; the brothers’ stories shift to a sparser, more realistic track with focused accents — the theft of the wand, a melodic theme for the loss of the beloved.'],
+      info: [['role', 'sound design · voice & breath recording · foley · synthesis · sound editing · mix'],
+             ['tools', 'logic pro · teenage engineering op-1 · zoom h6 · oktava mk-012']] },
+    { cat: 'film', title: 'Day Off (Vykhodnoy)', screen: 'DAY OFF', year: '2025', type: 'short film, 19 min', org: 'dir. Olesya Smolkova',
+      desc: ['Vera, a mother of many children, goes with her husband and three kids to a friend’s country house and tries to “relax” there.',
+             'The main challenge was the dialogue mix: several lavalier mics running at once, one on each character, plus the boom, blended into one natural, intelligible scene.'],
+      info: [['role', 'post-production sound · dialogue editing & mix · sound design · music for the end credits']] },
     { cat: 'film', title: '2 Million Dollars Story', screen: '2M$ STORY', year: '2021', type: 'short comedy film', org: '',
       desc: ['The film was shot without any production sound, so the entire soundtrack was built from scratch in post: every line of dialogue re-recorded, every footstep, door and room created anew.'],
       info: [['role', 'ADR recording & editing · foley · ambiences · SFX · mix'], ['music', 'Arseniy Bobryshev'], ['tools', 'reaper · logic pro']] },
