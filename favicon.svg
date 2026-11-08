@@ -1,1 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="5" fill="#0A100D"/><polygon points="11,7 11,25 26,16" fill="#F26580"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" fill="#C2ABE8" stroke="#1A1A1A" stroke-width="2"/><line x1="16" y1="5" x2="16" y2="13" stroke="#1A1A1A" stroke-width="2.8" stroke-linecap="round" transform="rotate(-75 16 16)"/></svg>
