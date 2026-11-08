@@ -251,10 +251,11 @@ body {
 /* big centred play button — shown whenever there's something to play and it isn't playing */
 .big-play { all: unset; box-sizing: border-box; position: absolute; left: 50%; top: 50%; z-index: 6;
   width: 92px; height: 92px; margin: -46px 0 0 -46px; display: none; align-items: center; justify-content: center;
-  border: 2px solid var(--screen-pink); background: rgba(10, 16, 13, 0.72); color: var(--screen-pink); cursor: pointer;
+  border: none; background: none; color: var(--screen-pink); cursor: pointer;
+  filter: drop-shadow(0 0 10px rgba(10, 16, 13, 0.9));
   transition: transform 0.15s steps(2, end), background 0.15s; }
-.big-play svg { width: 44px; height: 44px; margin-left: 6px; }
-.big-play:hover { background: var(--screen-pink); color: var(--screen-bg); transform: scale(1.06); }
+.big-play svg { width: 76px; height: 76px; margin-left: 8px; }
+.big-play:hover { color: var(--screen-glow); transform: scale(1.1); }
 .big-play:active { transform: scale(0.94); }
 .screen.has-media:not(.playing) .big-play { display: flex; animation: m-click 0.25s steps(3, end); }
 .screen.video-on:not(.playing) .big-play { margin-top: -65px; }   /* centre over the picture, above the control bar */
