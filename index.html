@@ -248,8 +248,19 @@ body {
 .scr-video { position: absolute; inset: 0; z-index: 5; background: #000; display: none; flex-direction: column; }
 .screen.video-on .scr-video { display: flex; animation: vid-on 0.3s steps(4, end); }
 @keyframes vid-on { from { clip-path: inset(50% 0 50% 0); } to { clip-path: inset(0 0 0 0); } }
+/* big centred play button — shown whenever there's something to play and it isn't playing */
+.big-play { all: unset; box-sizing: border-box; position: absolute; left: 50%; top: 50%; z-index: 6;
+  width: 92px; height: 92px; margin: -46px 0 0 -46px; display: none; align-items: center; justify-content: center;
+  border: 2px solid var(--screen-pink); background: rgba(10, 16, 13, 0.72); color: var(--screen-pink); cursor: pointer;
+  transition: transform 0.15s steps(2, end), background 0.15s; }
+.big-play svg { width: 44px; height: 44px; margin-left: 6px; }
+.big-play:hover { background: var(--screen-pink); color: var(--screen-bg); transform: scale(1.06); }
+.big-play:active { transform: scale(0.94); }
+.screen.has-media:not(.playing) .big-play { display: flex; animation: m-click 0.25s steps(3, end); }
+.screen.video-on:not(.playing) .big-play { margin-top: -65px; }   /* centre over the picture, above the control bar */
+
 /* preview: still frame behind the screen text, muted motion on hover */
-.screen > *:not(.scr-peek):not(.scr-video) { position: relative; z-index: 1; }
+.screen > *:not(.scr-peek):not(.scr-video):not(.big-play) { position: relative; z-index: 1; }
 .screen.has-video { background-size: cover; background-position: center;
   background-image: linear-gradient(rgba(10,16,13,0.62), rgba(10,16,13,0.9)), var(--poster); }
 .scr-peek { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; opacity: 0; transition: opacity 0.35s steps(4, end); pointer-events: none; }
@@ -1121,6 +1132,9 @@ body {
                 <button type="button" class="scr-btn" onclick="playerStop()" aria-label="close video">×</button>
               </div>
             </div>
+        <button type="button" class="big-play" id="big-play" onclick="playerToggle()" aria-label="play">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="7,4 7,20 20,12" fill="currentColor"/></svg>
+        </button>
         <video class="scr-peek" id="scr-peek" muted playsinline loop preload="none" aria-hidden="true"></video>
         <audio id="scr-audio" preload="none"></audio>
         <div class="preview" id="preview" data-mode="video">
