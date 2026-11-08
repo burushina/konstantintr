@@ -1028,6 +1028,9 @@ body {
 .num.wide.on .num-meta { color: inherit; opacity: 0.7; }
 .bio-cell { padding: 14px 16px; }
 .bio-cell p { font-size: 15px; line-height: 1.5; }
+.bio-cell { gap: 8px; }
+.bio-cell .bio-clients { font-size: 11px; line-height: 1.45; color: var(--muted); }
+.bio-cell .bio-clients span { text-transform: uppercase; letter-spacing: 0.1em; font-size: 9.5px; margin-right: 4px; color: var(--ink); }
 
 @media (min-width: 881px) {
   /* project opens inside the device: info panel between controls and keyboard, keyboard folds down */
@@ -1203,7 +1206,7 @@ body {
       <div class="cell fill-dots top-dots" aria-hidden="true"></div>
 
       <!-- row 2 right side (cols 8-11): shuffle + fill (col 12 taken by tall brand) -->
-      <div class="cell bio-cell"><p>Konstantin Troitsky — sound designer and audio engineer based near Paris.</p></div>
+      <div class="cell bio-cell"><p>Konstantin Troitsky — sound designer and audio engineer based near Paris.</p><p class="bio-clients"><span>clients</span> V-A-C Foundation · Raiffeisen Bank · Yandex · Volkswagen · Snob · Podcast Factory</p></div>
       <div class="cell btn fn t3 info-btn" id="info-btn" onclick="toggleMenu(event)" aria-haspopup="true" aria-expanded="false">
         <span class="corner"></span><span class="lbl">info</span>
         <div class="info-menu" id="info-menu" role="menu">
@@ -1375,13 +1378,13 @@ const SITE_PROJECTS = [
   ];
 const SITE_ABOUT = {
     en: ['Konstantin Troitsky is a sound designer and audio engineer based near Paris. His work sits where sound becomes a place: immersive audio walks, narrative podcasts, sound installations, and sound and music for film and video.',
+         'Clients and partners include V-A-C Foundation, Raiffeisen Bank, Yandex, Volkswagen, Snob and Podcast Factory.',
          'He has created more than fifty audio walks in Russia, Spain and France — binaural, site-specific pieces that turn streets, parks and buildings into both stage and score. He has worked on immersive installations with artists and composers, including Ecomorf, an eight-channel audiovisual installation developed at the Signal residency and shown at Signal festival in Nikola-Lenivets. At ENS Louis-Lumière he wrote, recorded and mixed Exiles, an audio documentary supported by the French Ministry for Europe and Foreign Affairs. For film he has done sound design and post-production on more than ten short films and a feature.',
-         'He works in English, French and Russian, remotely or on site across Europe.',
-         'Clients and partners include V-A-C Foundation, Raiffeisen Bank, Yandex, Volkswagen, Snob and Podcast Factory.'],
+         'He works in English, French and Russian, remotely or on site across Europe.'],
     fr: ['Basé près de Paris, Konstantin Troitsky est sound designer et ingénieur du son. Son travail se situe là où le son devient un lieu : parcours sonores immersifs, podcasts narratifs, installations sonores, son et musique pour le film et la vidéo.',
+         'Parmi ses clients et partenaires : V-A-C Foundation, Raiffeisen Bank, Yandex, Volkswagen, Snob, Podcast Factory.',
          'Il a créé plus de cinquante parcours sonores en Russie, en Espagne et en France — des pièces binaurales conçues in situ, qui font des rues, des parcs et des bâtiments à la fois une scène et une partition. Il a participé à des installations immersives aux côtés d’artistes et de compositeurs, dont Ecomorf, installation audiovisuelle sur huit canaux créée lors de la résidence Signal et présentée au festival Signal à Nikola-Lenivets. À l’ENS Louis-Lumière, il a écrit, enregistré et mixé Exiles, un documentaire sonore soutenu par le ministère de l’Europe et des Affaires étrangères. Pour le cinéma, il a assuré le sound design et la post-production de plus de dix courts métrages et d’un long métrage.',
-         'Il travaille en français, en anglais et en russe, à distance ou sur place en Europe.',
-         'Parmi ses clients et partenaires : V-A-C Foundation, Raiffeisen Bank, Yandex, Volkswagen, Snob, Podcast Factory.']
+         'Il travaille en français, en anglais et en russe, à distance ou sur place en Europe.']
   };
 
 // desktop view: projects grouped by encoder category
