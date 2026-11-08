@@ -969,6 +969,8 @@ body {
 .m-card .m-scheme { display: block; margin-top: 14px; border: 1px solid var(--ink); }
 .m-card .m-scheme img { display: block; width: 100%; height: auto; }
 .info-extra { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
+.ext-link { color: inherit; text-decoration: underline; text-underline-offset: 3px; overflow-wrap: anywhere; }
+.ext-link:hover { color: #2A7BC5; }
 .info-extra:empty { display: none; }
 .info-side span:not(.k) { color: var(--ink); font-size: 11px; }
 @media (max-width: 880px) {
@@ -1361,10 +1363,11 @@ body {
 // ───────── content (shared by desktop + mobile) ──────────
 const SITE_PROJECTS = [
     { cat: 'narrative', media: [{ src: 'media/balade-sonore-1.mp3', label: 'extract 1' }, { src: 'media/balade-sonore-2.mp3', label: 'extract 2' }], gallery: [{ src: 'img/balade-sonore-donjon.jpg', thumb: 'img/balade-sonore-donjon-t.jpg', alt: 'Poster: Balade sonore au donjon' }, { src: 'img/balade-sonore-eglise.jpg', thumb: 'img/balade-sonore-eglise-t.jpg', alt: 'L’église — the walk on a phone' }, { src: 'img/balade-sonore-place.jpg', thumb: 'img/balade-sonore-place-t.jpg', alt: 'QR sign on the place du marché' }], slug: 'balade-sonore', title: 'Balade sonore à Crouy-sur-Ourcq', screen: 'CROUY', year: '2026', type: 'immersive audio walk',
-      org: 'Mairie de Crouy-sur-Ourcq / Médiévales du Houssoy',
+      org: 'Journées européennes du patrimoine 2026 · Mairie de Crouy-sur-Ourcq / Médiévales du Houssoy',
       desc: ['An immersive audio walk through a medieval village in Seine-et-Marne, guided by the White Lady of local legend across three sites: the church, the market square and the keep. The voices belong to local residents, recorded on location. Free and online year-round via QR codes.'],
       info: [['role', 'concept & script · field recording · organ recording in the church · voice recording, editing & mix · sound design · final mix'],
-             ['co-author', 'Polina Burushina'], ['legend', 'Martine Godé'], ['tools', 'logic pro · izotope rx · oktava mk-012']] },
+             ['co-author', 'Polina Burushina'], ['legend', 'Martine Godé'], ['tools', 'logic pro · izotope rx · oktava mk-012'],
+             ['listen', 'https://www.baladesonore-crouysurourcq.fr/']] },
     { cat: 'narrative', media: [{ src: 'media/exiles.mp4', poster: 'media/exiles.jpg' }], title: 'Exiles',title: 'Exiles', screen: 'EXILES', year: '2023', type: 'audio documentary',
       org: 'ENS Louis-Lumière, International Audiodocumentary Summer Program · supported by the French Ministry for Europe and Foreign Affairs',
       desc: ['A Russian couple rebuilding their life in Paris, told in their own voices.'],
@@ -2108,7 +2111,11 @@ function renderExtra(list) {
   box.innerHTML = '';
   (list || []).forEach(([k, v]) => {
     const kk = document.createElement('span'); kk.className = 'k'; kk.textContent = k;
-    const vv = document.createElement('span'); vv.textContent = v;
+    let vv;
+    if (/^https?:\/\//.test(v)) {               // links (e.g. the project's own site)
+      vv = document.createElement('a'); vv.href = v; vv.target = '_blank'; vv.rel = 'noopener'; vv.className = 'ext-link';
+      vv.textContent = v.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '') + ' ↗';
+    } else { vv = document.createElement('span'); vv.textContent = v; }
     box.append(kk, vv);
   });
 }
@@ -2383,7 +2390,7 @@ fitKeyboard();
           ${p.media && p.media.length ? `<div class="m-media">${mediaHTML(p.media, p.title, true)}</div>` : ''}
           ${p.desc.map(t => `<p>${esc(t)}</p>`).join('')}
           ${galleryOf(p).length ? `<div class="m-gallery info-gallery${p.cat === 'installations' ? ' wide' : ''}" data-gallery='${JSON.stringify(galleryOf(p)).replace(/'/g, '&#39;')}'>${galleryHTML(galleryOf(p), p.title)}</div>` : ''}
-          <dl>${p.info.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join('')}</dl>
+          <dl>${p.info.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${/^https?:\/\//.test(v) ? `<a class="ext-link" href="${v}" target="_blank" rel="noopener">${esc(v.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, ''))} ↗</a>` : esc(v)}</dd></div>`).join('')}</dl>
         </div>
       </div>`).join('')}`).join('');
 
