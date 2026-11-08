@@ -940,6 +940,8 @@ body {
 .g-thumb { all: unset; box-sizing: border-box; cursor: zoom-in; display: block; aspect-ratio: 3 / 4; overflow: hidden;
   border: 1px solid var(--ink); background: #F8F7F3; transition: transform 0.15s steps(2, end); }
 .g-thumb img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.info-gallery.wide { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.info-gallery.wide .g-thumb { aspect-ratio: 4 / 3; }
 .g-thumb.is-scheme img { object-fit: contain; padding: 4px; box-sizing: border-box; }
 .g-thumb:hover { transform: translateY(-3px); }
 .g-thumb:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
@@ -1870,6 +1872,7 @@ function setGallery(g, title) {
   const box = document.getElementById('info-gallery');
   curGallery = g || [];
   box.hidden = !curGallery.length;
+  box.classList.toggle('wide', activeSection === 'work' && activeCat === 'installations');   // landscape thumbnails
   box.innerHTML = galleryHTML(curGallery, title || '');
 }
 // lightbox
@@ -2379,7 +2382,7 @@ fitKeyboard();
           ${p.org ? `<div class="m-org">${esc(p.org)}</div>` : ''}
           ${p.media && p.media.length ? `<div class="m-media">${mediaHTML(p.media, p.title, true)}</div>` : ''}
           ${p.desc.map(t => `<p>${esc(t)}</p>`).join('')}
-          ${galleryOf(p).length ? `<div class="m-gallery info-gallery" data-gallery='${JSON.stringify(galleryOf(p)).replace(/'/g, '&#39;')}'>${galleryHTML(galleryOf(p), p.title)}</div>` : ''}
+          ${galleryOf(p).length ? `<div class="m-gallery info-gallery${p.cat === 'installations' ? ' wide' : ''}" data-gallery='${JSON.stringify(galleryOf(p)).replace(/'/g, '&#39;')}'>${galleryHTML(galleryOf(p), p.title)}</div>` : ''}
           <dl>${p.info.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join('')}</dl>
         </div>
       </div>`).join('')}`).join('');
