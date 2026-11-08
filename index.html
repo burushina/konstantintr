@@ -934,6 +934,33 @@ body {
 .media-item figcaption { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
 .m-card .m-media { display: flex; flex-direction: column; gap: 12px; margin-bottom: 14px; }
 .preview { cursor: pointer; }
+/* thumbnails → full-screen viewer */
+.info-gallery { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.info-gallery[hidden] { display: none; }
+.g-thumb { all: unset; box-sizing: border-box; cursor: zoom-in; display: block; aspect-ratio: 3 / 4; overflow: hidden;
+  border: 1px solid var(--ink); background: #F8F7F3; transition: transform 0.15s steps(2, end); }
+.g-thumb img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.g-thumb.is-scheme img { object-fit: contain; padding: 4px; box-sizing: border-box; }
+.g-thumb:hover { transform: translateY(-3px); }
+.g-thumb:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.m-card .m-gallery { margin: 14px 0; }
+.lightbox { position: fixed; inset: 0; z-index: 200; background: rgba(10, 16, 13, 0); display: flex; align-items: center; justify-content: center;
+  transition: background 0.22s steps(4, end); }
+.lightbox[hidden] { display: none; }
+.lightbox.open { background: rgba(10, 16, 13, 0.94); }
+.lightbox figure { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 10px; max-width: 92vw; }
+.lightbox img { max-width: 88vw; max-height: 84vh; object-fit: contain; display: block; }
+.lightbox.scheme img { background: #F8F7F3; padding: 12px; box-sizing: border-box; max-width: min(88vw, 1100px); width: 100%; }
+.lightbox img.lb-in { animation: lb-in 0.42s cubic-bezier(0.34, 1.35, 0.64, 1); }
+@keyframes lb-in { from { clip-path: inset(50% 0 50% 0); transform: scale(0.94); } to { clip-path: inset(0 0 0 0); transform: none; } }
+.lb-cap { color: #9FC9B3; font-size: 12px; letter-spacing: 0.06em; white-space: pre; }
+.lb-btn { all: unset; cursor: pointer; color: #F26580; font-size: 13px; }
+.lb-x { position: absolute; top: 18px; right: 22px; border: 1px solid #F26580; padding: 5px 10px; }
+.lb-x:hover { background: #F26580; color: #0A100D; }
+.lb-nav { font-size: 54px; line-height: 1; padding: 10px 18px; }
+.lb-nav:hover { color: #7FE5B9; }
+.lb-nav[hidden] { display: none; }
+@media (max-width: 880px) { .lb-nav { position: absolute; bottom: 14px; font-size: 40px; } .lb-prev { left: 20px; } .lb-next { right: 20px; } }
 .info-scheme { grid-column: 1 / -1; display: block; border: 1px solid var(--ink); background: #F8F7F3; }
 .info-scheme[hidden] { display: none; }
 .info-scheme img { display: block; width: 100%; height: auto; }
@@ -1070,6 +1097,8 @@ body {
   .info-desc { grid-column: 1 / 8; grid-row: 3 / span 2; align-self: start; max-width: 640px; font-size: 14px; }
   .info-side { grid-column: 8 / -1; grid-row: 3; }
   .info-scheme { grid-column: 8 / -1; grid-row: 4; }
+  .info-gallery { grid-column: 8 / -1; grid-row: 4; align-self: start; }
+  .project-info.reveal .info-gallery { animation: m-insert 0.55s cubic-bezier(0.34, 1.45, 0.64, 1) 0.56s both; }
   .project-info.reveal .info-media { animation: m-feed 0.6s cubic-bezier(0.3, 0, 0.2, 1) 0.36s both; }
   .project-info .info-close {
     position: absolute; top: 14px; right: 16px; z-index: 3; border: 1px solid var(--ink); background: var(--bg);
@@ -1244,6 +1273,7 @@ body {
 
         <div class="info-media" id="info-media" hidden></div>
 
+    <div class="info-gallery" id="info-gallery" hidden></div>
     <a class="info-scheme" id="info-scheme" target="_blank" rel="noopener" hidden><img alt=""></a>
 
         <div class="info-side">
@@ -1319,10 +1349,16 @@ body {
   </nav>
 </div>
 
+<div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="image" onclick="if (event.target === this) lbClose()">
+  <button type="button" class="lb-btn lb-x" onclick="lbClose()" aria-label="close">close ×</button>
+  <button type="button" class="lb-btn lb-nav lb-prev" onclick="lbShow(lbIdx - 1)" aria-label="previous">‹</button>
+  <figure><img alt=""><figcaption class="lb-cap"></figcaption></figure>
+  <button type="button" class="lb-btn lb-nav lb-next" onclick="lbShow(lbIdx + 1)" aria-label="next">›</button>
+</div>
 <script>
 // ───────── content (shared by desktop + mobile) ──────────
 const SITE_PROJECTS = [
-    { cat: 'narrative', media: [{ src: 'media/balade-sonore-1.mp3', label: 'extract 1' }, { src: 'media/balade-sonore-2.mp3', label: 'extract 2' }], slug: 'balade-sonore', title: 'Balade sonore à Crouy-sur-Ourcq', screen: 'CROUY', year: '2026', type: 'immersive audio walk',
+    { cat: 'narrative', media: [{ src: 'media/balade-sonore-1.mp3', label: 'extract 1' }, { src: 'media/balade-sonore-2.mp3', label: 'extract 2' }], gallery: [{ src: 'img/balade-sonore-donjon.jpg', thumb: 'img/balade-sonore-donjon-t.jpg', alt: 'Poster: Balade sonore au donjon' }, { src: 'img/balade-sonore-eglise.jpg', thumb: 'img/balade-sonore-eglise-t.jpg', alt: 'L’église — the walk on a phone' }, { src: 'img/balade-sonore-place.jpg', thumb: 'img/balade-sonore-place-t.jpg', alt: 'QR sign on the place du marché' }], slug: 'balade-sonore', title: 'Balade sonore à Crouy-sur-Ourcq', screen: 'CROUY', year: '2026', type: 'immersive audio walk',
       org: 'Mairie de Crouy-sur-Ourcq / Médiévales du Houssoy',
       desc: ['An immersive audio walk through a medieval village in Seine-et-Marne, guided by the White Lady of local legend across three sites: the church, the market square and the keep. The voices belong to local residents, recorded on location. Free and online year-round via QR codes.'],
       info: [['role', 'concept & script · field recording · organ recording in the church · voice recording, editing & mix · sound design · final mix'],
@@ -1357,6 +1393,7 @@ const SITE_PROJECTS = [
     { cat: 'installations', media: [{ src: 'media/synesthetic-space.mp4', poster: 'media/synesthetic-space.jpg' }], title: 'Synesthetic Space',title: 'Synesthetic Space', screen: 'SYNESTHESIA', year: '2025', type: '4-channel audiovisual installation', org: 'Totem, association Beau Geste, Crouy-sur-Ourcq',
       desc: ['An installation exploring synesthesia. I improvised live with instruments and field recordings while artist Polina Burushina, a strong synesthete, listened with her eyes closed and described the images the sound produced. From the recordings we edited a single piece, and Polina animated her visions to it.',
              'Shown in a light-sealed black cube of about 1.8 × 1.8 m, with projection, four-channel sound, cushions and incense for full immersion.'],
+      gallery: [{ src: 'img/synesthetic-space-cube.jpg', thumb: 'img/synesthetic-space-cube-t.jpg', alt: 'The black cube at Totem, Crouy-sur-Ourcq' }],
       scheme: 'schemes/synesthetic-space.svg',
       info: [['role', 'concept · live improvisation & sound design · editing · 4-channel spatial mix · technical realisation (cube, projection, sound system)'],
              ['visuals', 'Polina Burushina'], ['tools', 'logic pro · dearvr · teenage engineering op-1 · soma ether 2 · guitar · field recordings']] },
@@ -1396,6 +1433,12 @@ const PROJECTS = {narrative: [], music: [], installations: [], film: []};
 const slugify = t => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
   .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 SITE_PROJECTS.forEach(p => { p.slug = p.slug || slugify(p.title); });
+// photos + installation scheme as one set of thumbnails that open full screen
+function galleryOf(p) {
+  const g = (p.gallery || []).slice();
+  if (p.scheme) g.push({ src: p.scheme, thumb: p.scheme.replace('schemes/', 'img/').replace('.svg', '-scheme-t.jpg'), alt: 'Installation scheme', scheme: true });
+  return g;
+}
 function setHash(h) {
   const url = location.pathname + location.search + (h ? '#' + h : '');
   if (url !== location.pathname + location.search + location.hash) history.replaceState(null, '', url);
@@ -1405,7 +1448,7 @@ SITE_PROJECTS.forEach(p => {
   PROJECTS[p.cat].push({
     name: p.title, screen: p.screen, year: p.year, role: get('role'), client: p.org, dur: p.type,
     tools: get('tools'), credits: p.info.filter(([k]) => k !== 'role' && k !== 'tools'),
-    desc: p.desc.join('\n\n'), scheme: p.scheme || '', slug: p.slug, media: p.media || []
+    desc: p.desc.join('\n\n'), scheme: '', slug: p.slug, media: p.media || [], gallery: galleryOf(p)
   });
 });
 
@@ -1819,6 +1862,53 @@ document.addEventListener('play', e => {           // only one thing plays at a 
   const pk = document.getElementById('scr-peek'); if (pk) { pk.pause(); document.getElementById('screen').classList.remove('peeking'); }
 }, true);
 
+const galleryHTML = (g, title) => g.map((it, i) =>
+  `<button type="button" class="g-thumb${it.scheme ? ' is-scheme' : ''}" data-i="${i}" aria-label="${escH(it.alt || title)} — open">` +
+  `<img src="${it.thumb}" alt="${escH(it.alt || '')}" loading="lazy"></button>`).join('');
+let curGallery = [];
+function setGallery(g, title) {
+  const box = document.getElementById('info-gallery');
+  curGallery = g || [];
+  box.hidden = !curGallery.length;
+  box.innerHTML = galleryHTML(curGallery, title || '');
+}
+// lightbox
+let lbList = [], lbIdx = 0;
+function lbShow(i) {
+  lbIdx = (i + lbList.length) % lbList.length;
+  const it = lbList[lbIdx], lb = document.getElementById('lightbox'), img = lb.querySelector('img');
+  img.src = it.src; img.alt = it.alt || '';
+  lb.classList.toggle('scheme', !!it.scheme);
+  lb.querySelector('.lb-cap').textContent = (it.alt || '') + (lbList.length > 1 ? `   ${lbIdx + 1} / ${lbList.length}` : '');
+  lb.querySelectorAll('.lb-nav').forEach(b => b.hidden = lbList.length < 2);
+  img.classList.remove('lb-in'); void img.offsetWidth; img.classList.add('lb-in');
+}
+function lbOpen(list, i) {
+  lbList = list; const lb = document.getElementById('lightbox');
+  lb.hidden = false; requestAnimationFrame(() => lb.classList.add('open'));
+  document.body.style.overflow = 'hidden';
+  clunk('open'); lbShow(i);
+}
+function lbClose() {
+  const lb = document.getElementById('lightbox'); if (lb.hidden) return;
+  lb.classList.remove('open'); document.body.style.overflow = '';
+  setTimeout(() => { lb.hidden = true; }, 220); clunk('close');
+}
+document.addEventListener('click', e => {
+  const t = e.target.closest('.g-thumb'); if (!t) return;
+  const holder = t.closest('[data-gallery]');
+  const list = holder ? JSON.parse(holder.dataset.gallery) : curGallery;
+  lbOpen(list, +t.dataset.i);
+});
+document.addEventListener('keydown', e => {
+  if (document.getElementById('lightbox').hidden) return;
+  if (e.key === 'Escape') lbClose();
+  else if (e.key === 'ArrowRight') lbShow(lbIdx + 1);
+  else if (e.key === 'ArrowLeft') lbShow(lbIdx - 1);
+  else return;
+  e.preventDefault(); e.stopPropagation();
+}, true);
+
 function setScheme(src, name) {
   const a = document.getElementById('info-scheme');
   if (!src) { a.hidden = true; a.removeAttribute('href'); return; }
@@ -1998,6 +2088,7 @@ function renderCore() {
   setCredit('info-dur',    cur.dur);
   document.getElementById('info-desc').textContent = cur.desc;
   setScheme(cur.scheme, cur.name);
+  setGallery(cur.gallery, cur.name);
   stopAllMedia();
   setMedia(cur.media, cur.name);
   document.getElementById('info-tools').textContent = cur.tools;
@@ -2043,6 +2134,7 @@ function renderSectionInfo(name) {
   setCredit('info-dur',    s.dur);
   document.getElementById('info-desc').textContent  = s.desc;
   setScheme('');
+  setGallery([]);
   stopAllMedia();
   setMedia([]);
   document.getElementById('info-tools').textContent = s.tools;
@@ -2287,7 +2379,7 @@ fitKeyboard();
           ${p.org ? `<div class="m-org">${esc(p.org)}</div>` : ''}
           ${p.media && p.media.length ? `<div class="m-media">${mediaHTML(p.media, p.title, true)}</div>` : ''}
           ${p.desc.map(t => `<p>${esc(t)}</p>`).join('')}
-          ${p.scheme ? `<a class="m-scheme" href="${p.scheme}" target="_blank" rel="noopener"><img src="${p.scheme}" alt="${esc(p.title)} — installation scheme" loading="lazy"></a>` : ''}
+          ${galleryOf(p).length ? `<div class="m-gallery info-gallery" data-gallery='${JSON.stringify(galleryOf(p)).replace(/'/g, '&#39;')}'>${galleryHTML(galleryOf(p), p.title)}</div>` : ''}
           <dl>${p.info.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join('')}</dl>
         </div>
       </div>`).join('')}`).join('');
